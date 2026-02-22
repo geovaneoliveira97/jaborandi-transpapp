@@ -21,11 +21,9 @@ const PAGE_TITLES = {
 export default function App() {
   const [view, setView] = useState('home')
   const [selectedLine, setSelectedLine] = useState(null)
-
-  // 🔥 NOVO: estado vindo do banco
   const [busLines, setBusLines] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  // 🔥 NOVO: buscar dados do Supabase
   useEffect(() => {
     async function fetchLines() {
       const { data, error } = await supabase
@@ -37,8 +35,8 @@ export default function App() {
       } else {
         setBusLines(data || [])
       }
+      setLoading(false)
     }
-
     fetchLines()
   }, [])
 
@@ -55,6 +53,13 @@ export default function App() {
   const alertCount = ALERTS.filter(
     a => a.type === 'danger' || a.type === 'warn'
   ).length
+
+  if (loading) return (
+    <div className="min-h-screen flex flex-col items-center justify-center gap-3">
+      <div className="w-10 h-10 border-4 border-[#2ab76a] border-t-transparent rounded-full animate-spin" />
+      <p className="text-gray-400 text-sm">Carregando horários...</p>
+    </div>
+  )
 
   return (
     <div className="min-h-screen pb-32">
