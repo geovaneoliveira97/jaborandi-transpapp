@@ -1,10 +1,10 @@
 import { useState, useCallback, useEffect } from 'react'
 import { supabase } from './lib/supabase'
-
 import { ALERTS } from './data/alerts'
 
 import Header from './components/Header'
 import BottomNav from './components/BottomNav'
+import { LoadingScreen, ErrorScreen } from './components/LoadingScreen'
 
 import Home from './pages/Home'
 import Lines from './pages/Lines'
@@ -23,22 +23,22 @@ export default function App() {
   const [selectedLine, setSelectedLine] = useState(null)
   const [busLines, setBusLines] = useState([])
   const [loading, setLoading] = useState(true)
+  const [erro, setErro] = useState(false)
 
-  useEffect(() => {
-    async function fetchLines() {
-      const { data, error } = await supabase
-        .from('bus_lines')
-        .select('*')
-
-      if (error) {
-        console.error('Erro ao buscar linhas:', error)
-      } else {
-        setBusLines(data || [])
-      }
-      setLoading(false)
+  async function fetchLines() {
+    setLoading(true)
+    setErro(false)
+    const { data, error } = await supabase.from('bus_lines').select('*')
+    if (error) {
+      console.error('Erro ao buscar linhas:', error)
+      setErro(true)
+    } else {
+      setBusLines(data || [])
     }
-    fetchLines()
-  }, [])
+    setLoading(false)
+  }
+
+  useEffect(() => { fetchLines() }, [])
 
   const navigateTo = useCallback((newView) => {
     setView(newView)
@@ -54,55 +54,29 @@ export default function App() {
     a => a.type === 'danger' || a.type === 'warn'
   ).length
 
-  if (loading) return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-3">
-      <div className="w-10 h-10 border-4 border-[#2ab76a] border-t-transparent rounded-full animate-spin" />
-      <p className="text-gray-400 text-sm">Carregando horários...</p>
-    </div>
-  )
+  if (loading) return <LoadingScreen />
+  if (erro) return <ErrorScreen onRetry={fetchLines} />
 
   return (
     <div className="min-h-screen pb-32">
-
       <Header title={PAGE_TITLES[view]} />
 
       <main className="max-w-lg mx-auto px-4 py-5">
-
         {view === 'home' && (
-          <Home
-            busLines={busLines}
-            alerts={ALERTS}
-            onNavigate={navigateTo}
-            onSelectLine={handleSelectLine}
-          />
+          <Home busLines={busLines} alerts={ALERTS}
+            onNavigate={navigateTo} onSelectLine={handleSelectLine} />
         )}
-
         {view === 'lines' && (
-          <Lines
-            busLines={busLines}
-            onSelectLine={handleSelectLine}
-          />
+          <Lines busLines={busLines} onSelectLine={handleSelectLine} />
         )}
-
         {view === 'schedule' && (
-          <Schedule
-            busLines={busLines}
-            selectedLine={selectedLine}
-            onSelectLine={setSelectedLine}
-          />
+          <Schedule busLines={busLines} selectedLine={selectedLine}
+            onSelectLine={setSelectedLine} />
         )}
-
-        {view === 'about' && (
-          <About />
-        )}
-
+        {view === 'about' && <About />}
       </main>
 
-      <BottomNav
-        view={view}
-        onNavigate={navigateTo}
-        alertCount={alertCount}
-      />
+      <BottomNav view={view} onNavigate={navigateTo} alertCount={alertCount} />
     </div>
   )
 }
