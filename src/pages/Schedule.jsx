@@ -10,10 +10,12 @@ export default function Schedule({ busLines, selectedLine, onSelectLine }) {
   const [period, setPeriod] = useState('')
 
   useEffect(() => {
-    if (line?.schedules) {
-      setPeriod(Object.keys(line.schedules)[0])
-    }
-  }, [line])
+  if (line?.schedules) {
+    const periodos = Object.keys(line.schedules)
+    const segSex = periodos.find(p => p.includes('Seg')) ?? periodos[0]
+    setPeriod(segSex)
+  }
+}, [line])
 
   const periods = line?.schedules ? Object.keys(line.schedules) : []
   const detail  = line?.schedule_detail?.[period] ?? []
