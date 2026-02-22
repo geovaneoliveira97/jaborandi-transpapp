@@ -21,7 +21,7 @@ export default function LineCard({ line, onSelect }) {
       </div>
       <div className="flex-1 min-w-0">
         <p className="font-semibold text-gray-900 text-sm leading-snug truncate">{line.name}</p>
-       <p className="text-gray-400 text-xs mt-0.5">A cada {line.frequency}</p>      </div>
+      <p className="text-gray-400 text-xs mt-0.5">{line.frequency}</p>     </div>
       <div className="flex flex-col items-end gap-2 shrink-0">
         <Badge status={line.status} />
         {!isSuspended && (

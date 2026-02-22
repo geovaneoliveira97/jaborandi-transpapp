@@ -67,7 +67,7 @@ export default function Lines({ busLines, onSelectLine }) {
       {/* Lista */}
       <div className="space-y-2">
         {filtered.length === 0 ? (
-          <p className="text-center text-gray-400 text-sm py-10">Nenhuma linha encontrada.</p>
+          <p className="text-gray-400 text-xs mt-0.5">{line.frequency}</p>
         ) : (
           filtered.map(line => (
             <LineCard key={line.id} line={line} onSelect={onSelectLine} />
