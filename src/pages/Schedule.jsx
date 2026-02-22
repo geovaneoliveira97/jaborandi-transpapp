@@ -2,22 +2,27 @@
  * Schedule — Tabela de horários com seletor de linha e período.
  */
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Badge from '../components/Badge'
-
 
 export default function Schedule({ busLines, selectedLine, onSelectLine }) {
   const [line, setLine] = useState(selectedLine ?? busLines[0] ?? null)
-  const [period, setPeriod] = useState('Seg–Sex')
+  const [period, setPeriod] = useState('')
 
-  const periods = line ? Object.keys(line.schedules) : []
-  const detail  = line ? (line.schedule_detail?.[period] ?? []) : []
+  useEffect(() => {
+    if (line?.schedules) {
+      setPeriod(Object.keys(line.schedules)[0])
+    }
+  }, [line])
+
+  const periods = line?.schedules ? Object.keys(line.schedules) : []
+  const detail  = line?.schedule_detail?.[period] ?? []
+
   function handleLineChange(id) {
     const found = busLines.find(l => l.id === Number(id))
     if (found) {
       setLine(found)
       onSelectLine(found)
-      setPeriod(Object.keys(found.schedules)[0])
     }
   }
 
@@ -25,7 +30,6 @@ export default function Schedule({ busLines, selectedLine, onSelectLine }) {
     <p className="text-center text-gray-400 py-16 text-sm">Nenhuma linha disponível.</p>
   )
 
-  // Origem e destino da linha
   const [origem, destino] = line.name.split(' → ')
 
   return (
@@ -82,7 +86,6 @@ export default function Schedule({ busLines, selectedLine, onSelectLine }) {
 
       {/* Tabela de horários */}
       <div className="bg-gray-50 border border-gray-200 rounded-2xl overflow-hidden">
-        {/* Cabeçalho da tabela */}
         <div
           className="grid grid-cols-3 text-center text-xs font-bold text-white py-3"
           style={{ backgroundColor: line.color }}
@@ -92,7 +95,6 @@ export default function Schedule({ busLines, selectedLine, onSelectLine }) {
           <span>Chega em<br />{destino}</span>
         </div>
 
-        {/* Linhas */}
         {detail.length === 0 ? (
           <div className="p-8 text-center">
             <p className="text-3xl mb-2">🚫</p>
@@ -140,6 +142,7 @@ export default function Schedule({ busLines, selectedLine, onSelectLine }) {
           ))}
         </ol>
       </div>
+
     </div>
   )
 }
