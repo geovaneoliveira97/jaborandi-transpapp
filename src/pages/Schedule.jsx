@@ -5,20 +5,28 @@
 import { useState, useEffect } from 'react'
 import Badge from '../components/Badge'
 
+function getPeriodoPadrao(schedules) {
+  if (!schedules) return ''
+  const periodos = Object.keys(schedules)
+  return periodos.find(p => p.toLowerCase().startsWith('seg')) ?? periodos[0]
+}
+
 export default function Schedule({ busLines, selectedLine, onSelectLine }) {
-  const [line, setLine] = useState(selectedLine ?? busLines[0] ?? null)
-  const [period, setPeriod] = useState('')
+  const initialLine = selectedLine ?? busLines[0] ?? null
+  const [line, setLine] = useState(initialLine)
+  const [period, setPeriod] = useState(getPeriodoPadrao(initialLine?.schedules))
 
   useEffect(() => {
-  if (line?.schedules) {
-    const periodos = Object.keys(line.schedules)
-    const segSex = periodos.find(p => p.includes('Seg')) ?? periodos[0]
-    setPeriod(segSex)
-  }
-}, [line])
+    setPeriod(getPeriodoPadrao(line?.schedules))
+  }, [line])
 
-  const periods = line?.schedules ? Object.keys(line.schedules) : []
-  const detail  = line?.schedule_detail?.[period] ?? []
+  const periods = line?.schedules
+    ? Object.keys(line.schedules).sort((a, b) =>
+        a.toLowerCase().startsWith('seg') ? -1 : 1
+      )
+    : []
+
+  const detail = line?.schedule_detail?.[period] ?? []
 
   function handleLineChange(id) {
     const found = busLines.find(l => l.id === Number(id))
