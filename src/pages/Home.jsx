@@ -2,16 +2,9 @@
  * Home — Página inicial com resumo do sistema e próximos horários.
  */
 
-
-
-
+import LineCard from '../components/LineCard'
 
 export default function Home({ busLines, alerts, onNavigate, onSelectLine }) {
- 
-
-  
-
-
   return (
     <div className="space-y-6 animate-enter">
 
@@ -72,9 +65,20 @@ export default function Home({ busLines, alerts, onNavigate, onSelectLine }) {
         <div className="absolute -right-4 -bottom-6 w-20 h-20 rounded-full bg-white/5" />
       </section>
 
-     
+      {/* ── Linhas disponíveis ── */}
+      {busLines.length > 0 && (
+        <section>
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+            Linhas disponíveis
+          </p>
+          <div className="space-y-2">
+            {busLines.map(line => (
+              <LineCard key={line.id} line={line} onSelect={onSelectLine} />
+            ))}
+          </div>
+        </section>
+      )}
 
-     
     </div>
   )
 }
