@@ -20,7 +20,11 @@ const PAGE_TITLES = {
 
 export default function App() {
   const [view, setView] = useState('home')
+
+  // ✅ selectedLine começa null e é preenchido assim que as linhas carregam
+  // ou quando o usuário clica em uma linha específica
   const [selectedLine, setSelectedLine] = useState(null)
+
   const [busLines, setBusLines] = useState([])
   const [loading, setLoading] = useState(true)
   const [erro, setErro] = useState(false)
@@ -33,7 +37,11 @@ export default function App() {
       console.error('Erro ao buscar linhas:', error)
       setErro(true)
     } else {
-      setBusLines(data || [])
+      const lines = data || []
+      setBusLines(lines)
+
+      // ✅ Se ainda não há linha selecionada, usa a primeira por padrão
+      setSelectedLine(prev => prev ?? lines[0] ?? null)
     }
     setLoading(false)
   }
@@ -45,6 +53,7 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
 
+  // ✅ handleSelectLine agora é a única função que atualiza selectedLine
   const handleSelectLine = useCallback((line) => {
     setSelectedLine(line)
     navigateTo('schedule')
@@ -70,8 +79,12 @@ export default function App() {
           <Lines busLines={busLines} onSelectLine={handleSelectLine} />
         )}
         {view === 'schedule' && (
-          <Schedule busLines={busLines} selectedLine={selectedLine}
-            onSelectLine={setSelectedLine} />
+          // ✅ selectedLine é a única fonte de verdade — Schedule não precisa de estado local
+          <Schedule
+            busLines={busLines}
+            selectedLine={selectedLine}
+            onSelectLine={setSelectedLine}
+          />
         )}
         {view === 'about' && <About />}
       </main>
