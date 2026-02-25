@@ -1,12 +1,3 @@
-const EQUIPE: string[] = [
-  'Geovane Oliveira',
-  'Geovane Henrique',
-  'Samuel Duarte',
-  'Luan',
-  'Integrante 5', // ← substituir pelo nome real
-  'Integrante 6', // ← substituir pelo nome real
-]
-
 export default function About() {
   return (
     <div className="space-y-4 animate-enter">
@@ -36,23 +27,6 @@ export default function About() {
         <div className="border-t border-gray-200 pt-4">
           <p className="text-xs text-gray-400">Desenvolvido como Projeto Integrador</p>
           <p className="text-xs font-semibold text-[#2ab76a] mt-1">UNIVESP 2026</p>
-        </div>
-      </div>
-
-      {/* Integrantes */}
-      <div className="card p-5">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
-          Equipe
-        </p>
-        <div className="space-y-2">
-          {EQUIPE.map(nome => (
-            <div key={nome} className="flex items-center gap-3 py-2 border-b border-gray-100 last:border-0">
-              <div className="w-8 h-8 rounded-full bg-[#2ab76a]/10 flex items-center justify-center shrink-0">
-                <span className="text-[#2ab76a] font-bold text-xs">{nome[0]}</span>
-              </div>
-              <p className="text-sm font-medium text-gray-700">{nome}</p>
-            </div>
-          ))}
         </div>
       </div>
 
