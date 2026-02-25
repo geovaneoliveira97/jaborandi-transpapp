@@ -1,4 +1,4 @@
-import type { LineStatus } from '../types'
+import type { LineStatus } from '../types/types'
 
 interface BadgeProps {
   status: LineStatus

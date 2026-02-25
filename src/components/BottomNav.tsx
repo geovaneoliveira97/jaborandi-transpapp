@@ -1,7 +1,7 @@
-import type { AppView } from '../types'
-
+import type { AppView } from '../types/types'
+import type React from 'react'
 // Tipo do componente de ícone — função React sem props
-type IconComponent = () => JSX.Element
+type IconComponent = () => React.ReactElement
 
 interface NavItem {
   id: AppView

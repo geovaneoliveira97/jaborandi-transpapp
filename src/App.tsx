@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { supabase } from './lib/supabase'
 import { ALERTS } from './data/alerts'
-import type { BusLine, AppView } from './types'
+import type { BusLine, AppView,Alert } from './types/types'
 
 import Header from './components/Header'
 import BottomNav from './components/BottomNav'
@@ -19,9 +19,8 @@ const PAGE_TITLES: Record<AppView, string> = {
 }
 
 const ALERT_COUNT = ALERTS.filter(
-  a => a.type === 'danger' || a.type === 'warn'
+  (a: Alert) => a.type === 'danger' || a.type === 'warn'
 ).length
-
 export default function App() {
   const [view, setView]               = useState<AppView>('home')
   const [selectedLine, setSelectedLine] = useState<BusLine | null>(null)

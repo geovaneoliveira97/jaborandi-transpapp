@@ -6,8 +6,10 @@ export function LoadingScreen() {
     </div>
   )
 }
-
-export function ErrorScreen({ onRetry }) {
+interface ErrorScreenProps{
+  onRetry:() => void
+}
+export function ErrorScreen({ onRetry }: ErrorScreenProps) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-8 text-center">
       <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center">

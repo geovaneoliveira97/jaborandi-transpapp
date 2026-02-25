@@ -1,4 +1,4 @@
-import type { Alert, AlertType } from '../types'
+import type { Alert, AlertType } from '../types/types'
 
 interface AlertCardProps {
   alert: Alert

@@ -1,4 +1,4 @@
-import type { BusLine } from '../types'
+import type { BusLine } from '../types/types'
 import Badge from './Badge'
 
 interface LineCardProps {
