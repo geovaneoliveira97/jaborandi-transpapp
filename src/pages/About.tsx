@@ -1,17 +1,14 @@
-const EQUIPE: string[] = [
-  'Geovane Oliveira',
-  'Geovane Henrique',
-  'Samuel Duarte',
-  'Luan',
-  'Integrante 5', // ← substituir pelo nome real
-  'Integrante 6', // ← substituir pelo nome real
-]
+import { useTheme } from '../context/ThemeContext'
 
 export default function About() {
+  const { isDark } = useTheme()
+
+  const cardCls = `rounded-2xl border ${isDark ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'}`
+
   return (
     <div className="space-y-4 animate-enter">
 
-      <div className="card p-6 space-y-4 text-center">
+      <div className={`${cardCls} p-6 space-y-4 text-center`}>
         <div
           className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto"
           style={{ background: 'linear-gradient(135deg, #2ab76a, #166e3c)' }}
@@ -25,39 +22,26 @@ export default function About() {
           </svg>
         </div>
 
-        <h2 className="text-xl font-black text-gray-900">JaborandiTransp</h2>
+        <h2 className={`text-xl font-black ${isDark ? 'text-white' : 'text-gray-900'}`}>
+          JaborandiTransp
+        </h2>
 
-        <p className="text-gray-500 text-sm leading-relaxed">
+        <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
           Aplicativo que exibe os horários intermunicipais de ônibus da cidade de
           Jaborandi – SP, criado para atender à comunidade local com informações
           claras e acessíveis sobre as linhas da empresa Rápido do Oeste.
         </p>
 
-        <div className="border-t border-gray-200 pt-4">
-          <p className="text-xs text-gray-400">Desenvolvido como Projeto Integrador</p>
+        <div className={`border-t pt-4 ${isDark ? 'border-gray-800' : 'border-gray-200'}`}>
+          <p className={`text-xs ${isDark ? 'text-gray-600' : 'text-gray-400'}`}>
+            Desenvolvido como Projeto Integrador
+          </p>
           <p className="text-xs font-semibold text-[#2ab76a] mt-1">UNIVESP 2026</p>
         </div>
       </div>
 
-      {/* Integrantes */}
-      <div className="card p-5">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
-          Equipe
-        </p>
-        <div className="space-y-2">
-          {EQUIPE.map(nome => (
-            <div key={nome} className="flex items-center gap-3 py-2 border-b border-gray-100 last:border-0">
-              <div className="w-8 h-8 rounded-full bg-[#2ab76a]/10 flex items-center justify-center shrink-0">
-                <span className="text-[#2ab76a] font-bold text-xs">{nome[0]}</span>
-              </div>
-              <p className="text-sm font-medium text-gray-700">{nome}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Polo */}
-      <div className="card p-5 flex items-center gap-3">
+      <div className={`${cardCls} p-5 flex items-center gap-3`}>
         <div className="w-8 h-8 rounded-full bg-[#2ab76a]/10 flex items-center justify-center shrink-0">
           <svg viewBox="0 0 24 24" fill="none" stroke="#2ab76a" strokeWidth="2"
             strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
@@ -66,8 +50,10 @@ export default function About() {
           </svg>
         </div>
         <div>
-          <p className="text-xs text-gray-400">Polo UNIVESP</p>
-          <p className="text-sm font-semibold text-gray-700">Jaborandi – SP</p>
+          <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>Polo UNIVESP</p>
+          <p className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-700'}`}>
+            Jaborandi – SP
+          </p>
         </div>
       </div>
 

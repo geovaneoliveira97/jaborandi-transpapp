@@ -1,5 +1,6 @@
 import type { BusLine, Alert, AppView } from '../types'
 import LineCard from '../components/LineCard'
+import { useTheme } from '../context/ThemeContext'
 
 interface HomeProps {
   busLines: BusLine[]
@@ -9,6 +10,8 @@ interface HomeProps {
 }
 
 export default function Home({ busLines, onNavigate, onSelectLine }: HomeProps) {
+  const { isDark } = useTheme()
+
   return (
     <div className="space-y-6 animate-enter">
 
@@ -17,7 +20,6 @@ export default function Home({ busLines, onNavigate, onSelectLine }: HomeProps) 
         className="rounded-3xl p-6 relative overflow-hidden"
         style={{ background: 'linear-gradient(135deg, #2ab76a 0%, #1a7a47 100%)' }}
       >
-        {/* Badge cidade */}
         <div className="inline-flex items-center gap-1.5 bg-white/20 rounded-full px-3 py-1 mb-3">
           <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"
             strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
@@ -34,7 +36,6 @@ export default function Home({ busLines, onNavigate, onSelectLine }: HomeProps) 
           Consulte os horários oficiais da Rápido do Oeste de forma simples.
         </p>
 
-        {/* Botões rápidos */}
         <div className="flex gap-3 mt-5">
           <button
             onClick={() => onNavigate('lines')}
@@ -65,7 +66,6 @@ export default function Home({ busLines, onNavigate, onSelectLine }: HomeProps) 
           </button>
         </div>
 
-        {/* Decoração */}
         <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-white/10" />
         <div className="absolute -right-4 -bottom-6 w-20 h-20 rounded-full bg-white/5" />
       </section>
@@ -73,7 +73,8 @@ export default function Home({ busLines, onNavigate, onSelectLine }: HomeProps) 
       {/* ── Linhas disponíveis ── */}
       {busLines.length > 0 && (
         <section>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+          <p className={`text-xs font-semibold uppercase tracking-widest mb-3
+            ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
             Linhas disponíveis
           </p>
           <div className="space-y-2">

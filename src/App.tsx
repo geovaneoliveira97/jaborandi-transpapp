@@ -1,7 +1,8 @@
 import { useState, useCallback, useEffect } from 'react'
 import { supabase } from './lib/supabase'
 import { ALERTS } from './data/alerts'
-import type { BusLine, AppView,Alert } from './types/types'
+import type { BusLine, AppView, Alert } from './types/types'
+import { useTheme } from './context/ThemeContext'
 
 import Header from './components/Header'
 import BottomNav from './components/BottomNav'
@@ -21,25 +22,25 @@ const PAGE_TITLES: Record<AppView, string> = {
 const ALERT_COUNT = ALERTS.filter(
   (a: Alert) => a.type === 'danger' || a.type === 'warn'
 ).length
+
 export default function App() {
-  const [view, setView]               = useState<AppView>('home')
+  const { isDark } = useTheme()
+  const [view, setView]                 = useState<AppView>('home')
   const [selectedLine, setSelectedLine] = useState<BusLine | null>(null)
-  const [busLines, setBusLines]       = useState<BusLine[]>([])
-  const [loading, setLoading]         = useState(true)
-  const [erro, setErro]               = useState(false)
-  const [retryKey, setRetryKey]       = useState(0)
+  const [busLines, setBusLines]         = useState<BusLine[]>([])
+  const [loading, setLoading]           = useState(true)
+  const [erro, setErro]                 = useState(false)
+  const [retryKey, setRetryKey]         = useState(0)
 
   const retry = useCallback(() => setRetryKey(k => k + 1), [])
 
   useEffect(() => {
     let cancelled = false
-
     setLoading(true)
     setErro(false)
 
     supabase.from('bus_lines').select('*').then(({ data, error }) => {
       if (cancelled) return
-
       if (error) {
         if (import.meta.env.DEV) console.error('Erro ao buscar linhas:', error)
         setErro(true)
@@ -48,7 +49,6 @@ export default function App() {
         setBusLines(lines)
         setSelectedLine(prev => prev ?? lines[0] ?? null)
       }
-
       setLoading(false)
     })
 
@@ -66,22 +66,22 @@ export default function App() {
   }, [navigateTo])
 
   if (loading) return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-3">
+    <div className={`min-h-screen flex flex-col items-center justify-center gap-3 ${isDark ? 'bg-gray-950' : 'bg-white'}`}>
       <div className="w-10 h-10 border-4 border-[#2ab76a] border-t-transparent rounded-full animate-spin" />
-      <p className="text-gray-400 text-sm">Carregando horários...</p>
+      <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-400'}`}>Carregando horários...</p>
     </div>
   )
 
   if (erro) return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-8 text-center">
-      <p className="font-bold text-gray-900">Sem conexão</p>
+    <div className={`min-h-screen flex flex-col items-center justify-center gap-4 px-8 text-center ${isDark ? 'bg-gray-950' : 'bg-white'}`}>
+      <p className={`font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Sem conexão</p>
       <p className="text-gray-400 text-sm">Não foi possível carregar os horários.</p>
       <button onClick={retry} className="btn-primary mt-2">Tentar novamente</button>
     </div>
   )
 
   return (
-    <div className="min-h-screen pb-32">
+    <div className={`min-h-screen pb-32 transition-colors duration-300 ${isDark ? 'bg-gray-950' : 'bg-gray-50'}`}>
       <Header title={PAGE_TITLES[view]} />
 
       <main className="max-w-lg mx-auto px-4 py-5">
