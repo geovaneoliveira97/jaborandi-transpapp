@@ -18,6 +18,7 @@ export interface BusLine {
   stops?: string[]
   schedules?: Record<string, string[]>
   schedule_detail?: Record<string, ScheduleRow[]>
+  prices?: Record<string, number>
 }
 
 export type AlertType = 'danger' | 'warn' | 'info'
