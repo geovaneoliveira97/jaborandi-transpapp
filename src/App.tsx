@@ -6,6 +6,7 @@ import { useTheme } from './context/ThemeContext'
 
 import Header from './components/Header'
 import BottomNav from './components/BottomNav'
+import { LoadingScreen, ErrorScreen } from './components/LoadingScreen'
 
 import Home from './pages/Home'
 import Lines from './pages/Lines'
@@ -65,20 +66,9 @@ export default function App() {
     navigateTo('schedule')
   }, [navigateTo])
 
-  if (loading) return (
-    <div className={`min-h-screen flex flex-col items-center justify-center gap-3 ${isDark ? 'bg-gray-950' : 'bg-white'}`}>
-      <div className="w-10 h-10 border-4 border-[#2ab76a] border-t-transparent rounded-full animate-spin" />
-      <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-400'}`}>Carregando horários...</p>
-    </div>
-  )
+  if (loading) return <LoadingScreen />
 
-  if (erro) return (
-    <div className={`min-h-screen flex flex-col items-center justify-center gap-4 px-8 text-center ${isDark ? 'bg-gray-950' : 'bg-white'}`}>
-      <p className={`font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Sem conexão</p>
-      <p className="text-gray-400 text-sm">Não foi possível carregar os horários.</p>
-      <button onClick={retry} className="btn-primary mt-2">Tentar novamente</button>
-    </div>
-  )
+  if (erro) return <ErrorScreen onRetry={retry} />
 
   return (
     <div className={`min-h-screen pb-32 transition-colors duration-300 ${isDark ? 'bg-gray-950' : 'bg-gray-50'}`}>

@@ -1,4 +1,4 @@
-import type { BusLine, Alert, AppView } from '../types'
+import type { BusLine, Alert, AppView } from '../types/types'
 import LineCard from '../components/LineCard'
 import { useTheme } from '../context/ThemeContext'
 

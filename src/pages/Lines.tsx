@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import type { BusLine, LineStatus } from '../types'
+import type { BusLine, LineStatus } from '../types/types'
 import LineCard from '../components/LineCard'
 import { useTheme } from '../context/ThemeContext'
 
