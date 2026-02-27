@@ -11,3 +11,12 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     </ThemeProvider>
   </React.StrictMode>
 )
+
+// Registra o Service Worker para habilitar instalação como PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(err => {
+      console.error('Service Worker falhou:', err)
+    })
+  })
+}
