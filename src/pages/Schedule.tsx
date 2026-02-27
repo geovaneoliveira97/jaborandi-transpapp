@@ -11,9 +11,19 @@ interface ScheduleProps {
 
 const DEFAULT_COLOR = '#2ab76a'
 
-function getPeriodoPadrao(schedules: BusLine['schedules'] | undefined): string {
+function getPeriodoPorDia(schedules: BusLine['schedules'] | undefined): string {
   if (!schedules) return ''
   const periodos = Object.keys(schedules)
+  const diaSemana = new Date().getDay() // 0=Dom, 1=Seg...6=Sáb
+
+  if (diaSemana === 0) {
+    const domingo = periodos.find(p => p.toLowerCase().startsWith('dom'))
+    if (domingo) return domingo
+  }
+  if (diaSemana === 6) {
+    const sabado = periodos.find(p => p.toLowerCase().startsWith('s\u00e1b') || p.toLowerCase().startsWith('sab'))
+    if (sabado) return sabado
+  }
   return periodos.find(p => p.toLowerCase().startsWith('seg')) ?? periodos[0] ?? ''
 }
 
@@ -35,7 +45,7 @@ function getNowInMinutes(): number {
 export default function Schedule({ busLines, selectedLine, onSelectLine }: ScheduleProps) {
   const { isDark } = useTheme()
   const line = selectedLine ?? busLines[0] ?? null
-  const [period, setPeriod]         = useState<string>(() => getPeriodoPadrao(line?.schedules))
+  const [period, setPeriod]         = useState<string>(() => getPeriodoPorDia(line?.schedules))
   const [nowMinutes, setNowMinutes] = useState<number>(getNowInMinutes)
 
   useEffect(() => {
@@ -44,7 +54,7 @@ export default function Schedule({ busLines, selectedLine, onSelectLine }: Sched
   }, [])
 
   useEffect(() => {
-    setPeriod(getPeriodoPadrao(line?.schedules))
+    setPeriod(getPeriodoPorDia(line?.schedules))
   }, [line?.id])
 
   const PERIOD_ORDER = ['Seg–Sex', 'Sábado', 'Domingo']
