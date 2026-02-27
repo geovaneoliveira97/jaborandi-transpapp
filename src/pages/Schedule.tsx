@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import type { BusLine } from '../types'
+import type { BusLine } from '../types/types'
 import Badge from '../components/Badge'
 import { useTheme } from '../context/ThemeContext'
 
@@ -47,17 +47,23 @@ export default function Schedule({ busLines, selectedLine, onSelectLine }: Sched
     setPeriod(getPeriodoPadrao(line?.schedules))
   }, [line?.id])
 
+  const PERIOD_ORDER = ['Seg–Sex', 'Sábado', 'Domingo']
   const periods = line?.schedules
-    ? Object.keys(line.schedules).sort((a, b) =>
-        a.toLowerCase().startsWith('seg') ? -1 : 1
-      )
+    ? Object.keys(line.schedules).sort((a, b) => {
+        const ia = PERIOD_ORDER.indexOf(a)
+        const ib = PERIOD_ORDER.indexOf(b)
+        if (ia === -1 && ib === -1) return 0
+        if (ia === -1) return 1
+        if (ib === -1) return -1
+        return ia - ib
+      })
     : []
 
   const detail = line?.schedule_detail?.[period] ?? []
 
   const nextIndex = useMemo(() => {
     if (!detail.length) return -1
-    return detail.findIndex(row => {
+    return detail.findIndex((row: { de: string; colina: string | null; ate: string }) => {
       const t = timeToMinutes(row.de)
       if (t === null) return false
       const tAjustado = nowMinutes > 1200 && t < 360 ? t + 1440 : t
@@ -66,7 +72,7 @@ export default function Schedule({ busLines, selectedLine, onSelectLine }: Sched
   }, [detail, nowMinutes])
 
   function handleLineChange(id: string): void {
-    const found = busLines.find(l => l.id === Number(id))
+    const found = busLines.find(l => String(l.id) === id)
     if (found) onSelectLine(found)
   }
 
@@ -186,7 +192,7 @@ export default function Schedule({ busLines, selectedLine, onSelectLine }: Sched
                 </p>
               </div>
             )}
-            {detail.map((row, i) => {
+            {detail.map((row: { de: string; colina: string | null; ate: string }, i: number) => {
               const isPast = nextIndex === -1 ? true : i < nextIndex
               const isNext = i === nextIndex
               return (
@@ -243,7 +249,7 @@ export default function Schedule({ busLines, selectedLine, onSelectLine }: Sched
             Trajeto · {stops.length} paradas
           </p>
           <ol className="space-y-0">
-            {stops.map((stop, i) => (
+            {stops.map((stop: string, i: number) => (
               <li key={stop} className="flex items-start gap-3">
                 <div className="flex flex-col items-center shrink-0" aria-hidden="true">
                   <div
@@ -279,3 +285,4 @@ export default function Schedule({ busLines, selectedLine, onSelectLine }: Sched
     </div>
   )
 }
+
