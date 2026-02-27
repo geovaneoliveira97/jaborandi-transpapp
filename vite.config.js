@@ -1,8 +1,15 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
+import { existsSync } from 'fs'
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '')
+  // No Render, o secret file fica em /etc/secrets/.env
+  const envDir = existsSync('/etc/secrets/.env')
+    ? '/etc/secrets'
+    : process.cwd()
+
+  const env = loadEnv(mode, envDir, '')
+
   return {
     plugins: [react()],
     define: {
@@ -11,6 +18,72 @@ export default defineConfig(({ mode }) => {
     }
   }
 })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
