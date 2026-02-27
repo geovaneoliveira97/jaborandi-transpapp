@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
-import type { BusLine } from '../types'
+import type { BusLine } from '../types/types'
 import Badge from '../components/Badge'
+import { useTheme } from '../context/ThemeContext'
 
 interface ScheduleProps {
   busLines: BusLine[]
@@ -32,48 +33,53 @@ function getNowInMinutes(): number {
 }
 
 export default function Schedule({ busLines, selectedLine, onSelectLine }: ScheduleProps) {
+  const { isDark } = useTheme()
   const line = selectedLine ?? busLines[0] ?? null
   const [period, setPeriod]         = useState<string>(() => getPeriodoPadrao(line?.schedules))
   const [nowMinutes, setNowMinutes] = useState<number>(getNowInMinutes)
 
-  // Atualiza o relógio a cada minuto
   useEffect(() => {
     const interval = setInterval(() => setNowMinutes(getNowInMinutes()), 60_000)
     return () => clearInterval(interval)
   }, [])
 
-  // Reseta o período ao trocar de linha
   useEffect(() => {
     setPeriod(getPeriodoPadrao(line?.schedules))
   }, [line?.id])
 
+  const PERIOD_ORDER = ['Seg–Sex', 'Sábado', 'Domingo']
   const periods = line?.schedules
-    ? Object.keys(line.schedules).sort((a, b) =>
-        a.toLowerCase().startsWith('seg') ? -1 : 1
-      )
+    ? Object.keys(line.schedules).sort((a, b) => {
+        const ia = PERIOD_ORDER.indexOf(a)
+        const ib = PERIOD_ORDER.indexOf(b)
+        if (ia === -1 && ib === -1) return 0
+        if (ia === -1) return 1
+        if (ib === -1) return -1
+        return ia - ib
+      })
     : []
 
   const detail = line?.schedule_detail?.[period] ?? []
 
-  // Índice do próximo horário com tratamento de madrugada
   const nextIndex = useMemo(() => {
     if (!detail.length) return -1
-    return detail.findIndex(row => {
+    return detail.findIndex((row: { de: string; colina: string | null; ate: string }) => {
       const t = timeToMinutes(row.de)
       if (t === null) return false
-      // Horários de madrugada (ex: 03:50) após as 20h pertencem ao dia seguinte
       const tAjustado = nowMinutes > 1200 && t < 360 ? t + 1440 : t
       return tAjustado >= nowMinutes
     })
   }, [detail, nowMinutes])
 
   function handleLineChange(id: string): void {
-    const found = busLines.find(l => l.id === Number(id))
+    const found = busLines.find(l => String(l.id) === id)
     if (found) onSelectLine(found)
   }
 
   if (!line) return (
-    <p className="text-center text-gray-400 py-16 text-sm">Nenhuma linha disponível.</p>
+    <p className={`text-center py-16 text-sm ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+      Nenhuma linha disponível.
+    </p>
   )
 
   const lineColor      = line.color ?? DEFAULT_COLOR
@@ -84,20 +90,27 @@ export default function Schedule({ busLines, selectedLine, onSelectLine }: Sched
   const intermediarias = stops.slice(1, -1)
   const paradaIntermed = intermediarias[0] ?? null
 
+  // Classes reutilizáveis
+  const cardCls = `border rounded-2xl ${isDark ? 'bg-gray-900 border-gray-800' : 'bg-gray-50 border-gray-200'}`
+  const dividerCls = `border-b ${isDark ? 'border-gray-800' : 'border-gray-200'}`
+
   return (
     <div className="space-y-5 animate-enter">
 
       {/* Seletor de linha */}
-      <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-3">
-        <label className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
+      <div className={`${cardCls} p-4 space-y-3`}>
+        <label className={`text-xs font-semibold uppercase tracking-widest ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
           Selecionar linha
         </label>
         <select
           value={line.id}
           onChange={e => handleLineChange(e.target.value)}
-          className="w-full bg-white border border-gray-200 rounded-xl
-            px-4 py-3 text-sm text-gray-900
-            focus:outline-none focus:border-[#2ab76a] transition-colors"
+          className={`w-full border rounded-xl px-4 py-3 text-sm
+            focus:outline-none focus:border-[#2ab76a] transition-colors
+            ${isDark
+              ? 'bg-gray-800 border-gray-700 text-white'
+              : 'bg-white border-gray-200 text-gray-900'
+            }`}
         >
           {busLines.map(l => (
             <option key={l.id} value={l.id}>{l.name}</option>
@@ -113,9 +126,13 @@ export default function Schedule({ busLines, selectedLine, onSelectLine }: Sched
             {line.number}
           </div>
           <div className="flex-1">
-            <p className="text-sm font-semibold text-gray-900">{line.name}</p>
+            <p className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+              {line.name}
+            </p>
             {intermediarias.length > 0 && (
-              <p className="text-xs text-gray-400">Passa por {intermediarias.join(', ')}</p>
+              <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                Passa por {intermediarias.join(', ')}
+              </p>
             )}
           </div>
           <Badge status={line.status} />
@@ -132,7 +149,9 @@ export default function Schedule({ busLines, selectedLine, onSelectLine }: Sched
             className={`flex-1 text-xs font-bold py-2.5 rounded-xl transition-colors
               ${period === p
                 ? 'bg-[#2ab76a] text-white'
-                : 'bg-gray-50 text-gray-500 border border-gray-200'
+                : isDark
+                  ? 'bg-gray-800 text-gray-400 border border-gray-700'
+                  : 'bg-gray-50 text-gray-500 border border-gray-200'
               }`}
           >
             {p}
@@ -143,8 +162,7 @@ export default function Schedule({ busLines, selectedLine, onSelectLine }: Sched
       {/* Tabela de horários */}
       <div
         aria-live="polite"
-        aria-label={`Horários da linha ${line.name} — ${period}`}
-        className="bg-gray-50 border border-gray-200 rounded-2xl overflow-hidden"
+        className={`${cardCls} overflow-hidden`}
       >
         <div
           className="grid grid-cols-3 text-center text-xs font-bold text-white py-3"
@@ -161,29 +179,41 @@ export default function Schedule({ busLines, selectedLine, onSelectLine }: Sched
         {detail.length === 0 ? (
           <div className="p-8 text-center">
             <p className="text-3xl mb-2">🚫</p>
-            <p className="text-gray-500 text-sm font-semibold">Sem operação neste dia</p>
+            <p className={`text-sm font-semibold ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+              Sem operação neste dia
+            </p>
           </div>
         ) : (
           <>
             {nextIndex === -1 && (
-              <div className="px-4 py-2 text-center bg-gray-100 border-b border-gray-200">
-                <p className="text-xs text-gray-400">Sem mais horários hoje para esta linha.</p>
+              <div className={`px-4 py-2 text-center ${dividerCls} ${isDark ? 'bg-gray-800' : 'bg-gray-100'}`}>
+                <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                  Sem mais horários hoje para esta linha.
+                </p>
               </div>
             )}
-            {detail.map((row, i) => {
+            {detail.map((row: { de: string; colina: string | null; ate: string }, i: number) => {
               const isPast = nextIndex === -1 ? true : i < nextIndex
               const isNext = i === nextIndex
               return (
                 <div
                   key={i}
-                  className={`grid grid-cols-3 text-center py-3 text-sm border-b border-gray-200 last:border-0
+                  className={`grid grid-cols-3 text-center py-3 text-sm ${dividerCls} last:border-0
                     transition-opacity
-                    ${isNext ? 'bg-white' : i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
+                    ${isNext
+                      ? isDark ? 'bg-gray-800' : 'bg-white'
+                      : i % 2 === 0
+                        ? isDark ? 'bg-gray-900' : 'bg-white'
+                        : isDark ? 'bg-gray-900/60' : 'bg-gray-50'
+                    }
                     ${isPast && !isNext ? 'opacity-35' : 'opacity-100'}`}
                   style={isNext ? { borderLeft: `4px solid ${lineColor}` } : {}}
                 >
                   <span className={`font-bold flex flex-col items-center gap-1
-                    ${isNext ? 'text-gray-900' : 'text-gray-600'}`}
+                    ${isNext
+                      ? isDark ? 'text-white' : 'text-gray-900'
+                      : isDark ? 'text-gray-300' : 'text-gray-600'
+                    }`}
                   >
                     {row.de}
                     {isNext && (
@@ -195,10 +225,12 @@ export default function Schedule({ busLines, selectedLine, onSelectLine }: Sched
                       </span>
                     )}
                   </span>
-                  <span className="text-gray-500 self-center">{row.colina ?? '· · · · ·'}</span>
+                  <span className={`self-center ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                    {row.colina ?? '· · · · ·'}
+                  </span>
                   <span
                     className="font-bold self-center"
-                    style={{ color: isNext ? lineColor : '#9ca3af' }}
+                    style={{ color: isNext ? lineColor : isDark ? '#6b7280' : '#9ca3af' }}
                   >
                     {row.ate}
                   </span>
@@ -211,12 +243,13 @@ export default function Schedule({ busLines, selectedLine, onSelectLine }: Sched
 
       {/* Paradas */}
       {stops.length > 0 ? (
-        <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4">
-          <p className="text-xs text-gray-400 font-semibold uppercase tracking-widest mb-3">
+        <div className={`${cardCls} p-4`}>
+          <p className={`text-xs font-semibold uppercase tracking-widest mb-3
+            ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
             Trajeto · {stops.length} paradas
           </p>
           <ol className="space-y-0">
-            {stops.map((stop, i) => (
+            {stops.map((stop: string, i: number) => (
               <li key={stop} className="flex items-start gap-3">
                 <div className="flex flex-col items-center shrink-0" aria-hidden="true">
                   <div
@@ -231,7 +264,9 @@ export default function Schedule({ busLines, selectedLine, onSelectLine }: Sched
                   )}
                 </div>
                 <p className={`text-sm pb-3 ${
-                  i === 0 || i === stops.length - 1 ? 'text-gray-900 font-semibold' : 'text-gray-500'
+                  i === 0 || i === stops.length - 1
+                    ? isDark ? 'text-white font-semibold' : 'text-gray-900 font-semibold'
+                    : isDark ? 'text-gray-400' : 'text-gray-500'
                 }`}>
                   {stop}
                 </p>
@@ -240,11 +275,14 @@ export default function Schedule({ busLines, selectedLine, onSelectLine }: Sched
           </ol>
         </div>
       ) : (
-        <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4 text-center">
-          <p className="text-gray-400 text-sm">Informações de trajeto não disponíveis.</p>
+        <div className={`${cardCls} p-4 text-center`}>
+          <p className={`text-sm ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+            Informações de trajeto não disponíveis.
+          </p>
         </div>
       )}
 
     </div>
   )
 }
+

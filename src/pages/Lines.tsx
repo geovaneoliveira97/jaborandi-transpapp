@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import type { BusLine, LineStatus } from '../types'
 import LineCard from '../components/LineCard'
+import { useTheme } from '../context/ThemeContext'
 
 interface LinesProps {
   busLines: BusLine[]
@@ -20,6 +21,7 @@ const FILTERS: Filter[] = [
 ]
 
 export default function Lines({ busLines, onSelectLine }: LinesProps) {
+  const { isDark } = useTheme()
   const [filter, setFilter] = useState<'all' | LineStatus>('all')
   const [search, setSearch] = useState('')
 
@@ -38,7 +40,7 @@ export default function Lines({ busLines, onSelectLine }: LinesProps) {
 
       {/* Busca */}
       <div className="relative">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth={2}
+        <svg viewBox="0 0 24 24" fill="none" stroke={isDark ? '#6b7280' : '#9ca3af'} strokeWidth={2}
           strokeLinecap="round" strokeLinejoin="round"
           className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
           aria-hidden="true"
@@ -51,9 +53,12 @@ export default function Lines({ busLines, onSelectLine }: LinesProps) {
           placeholder="Buscar por número ou nome..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full bg-gray-50 border border-gray-200 rounded-xl
-            pl-9 pr-4 py-3 text-sm text-gray-900 placeholder-gray-400
-            focus:outline-none focus:border-[#2ab76a] transition-colors"
+          className={`w-full border rounded-xl pl-9 pr-4 py-3 text-sm
+            focus:outline-none focus:border-[#2ab76a] transition-colors
+            ${isDark
+              ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500'
+              : 'bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400'
+            }`}
         />
       </div>
 
@@ -66,7 +71,9 @@ export default function Lines({ busLines, onSelectLine }: LinesProps) {
             className={`shrink-0 text-xs font-bold px-3.5 py-2 rounded-xl transition-colors
               ${filter === f.id
                 ? 'bg-[#2ab76a] text-white'
-                : 'bg-gray-50 text-gray-500 border border-gray-200 hover:border-[#2ab76a]/40'
+                : isDark
+                  ? 'bg-gray-800 text-gray-400 border border-gray-700 hover:border-[#2ab76a]/40'
+                  : 'bg-gray-50 text-gray-500 border border-gray-200 hover:border-[#2ab76a]/40'
               }`}
           >
             {f.label}
@@ -77,7 +84,9 @@ export default function Lines({ busLines, onSelectLine }: LinesProps) {
       {/* Lista */}
       <div className="space-y-2">
         {filtered.length === 0 ? (
-          <p className="text-center text-gray-400 text-sm py-10">Nenhuma linha encontrada.</p>
+          <p className={`text-center text-sm py-10 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+            Nenhuma linha encontrada.
+          </p>
         ) : (
           filtered.map(line => (
             <LineCard key={line.id} line={line} onSelect={onSelectLine} />
@@ -85,7 +94,7 @@ export default function Lines({ busLines, onSelectLine }: LinesProps) {
         )}
       </div>
 
-      <p className="text-center text-gray-400 text-xs pb-2">
+      <p className={`text-center text-xs pb-2 ${isDark ? 'text-gray-600' : 'text-gray-400'}`}>
         {filtered.length} {filtered.length === 1 ? 'linha encontrada' : 'linhas encontradas'}
       </p>
     </div>
