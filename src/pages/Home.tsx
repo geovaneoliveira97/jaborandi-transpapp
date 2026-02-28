@@ -1,10 +1,9 @@
-import type { BusLine, Alert, AppView } from '../types/types'
+import type { BusLine, AppView } from '../types/types'
 import LineCard from '../components/LineCard'
 import { useTheme } from '../context/ThemeContext'
 
 interface HomeProps {
   busLines: BusLine[]
-  alerts: Alert[]
   onNavigate: (view: AppView) => void
   onSelectLine: (line: BusLine) => void
 }
