@@ -19,6 +19,14 @@ const PAGE_TITLES: Record<AppView, string> = {
   about:    'Sobre',
 }
 
+function trackPageView(view: AppView) {
+  if ((window as any).gtag) {
+    (window as any).gtag('event', 'page_view', {
+      page_title:    PAGE_TITLES[view],  // "Linhas", "Horários"...
+      page_location: `${window.location.origin}/${view}`, // .../lines
+    })
+  }
+}
 export default function App() {
   const { isDark } = useTheme()
   const [view, setView]                 = useState<AppView>('home')
@@ -53,6 +61,7 @@ export default function App() {
 
   const navigateTo = useCallback((newView: AppView) => {
     setView(newView)
+    trackPageView(newView) 
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
 
