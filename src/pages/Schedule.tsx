@@ -13,18 +13,15 @@ const DEFAULT_COLOR = '#2ab76a'
 
 function getPeriodoPorDia(schedules: BusLine['schedules'] | undefined): string {
   if (!schedules) return ''
-  const periodos = Object.keys(schedules)
-  const diaSemana = new Date().getDay() // 0=Dom, 1=Seg...6=Sáb
+  const periodos  = Object.keys(schedules)
+  const diaSemana = new Date().getDay()
 
-  if (diaSemana === 0) {
-    const domingo = periodos.find(p => p.toLowerCase().startsWith('dom'))
-    if (domingo) return domingo
-  }
-  if (diaSemana === 6) {
-    const sabado = periodos.find(p => p.toLowerCase().startsWith('s\u00e1b') || p.toLowerCase().startsWith('sab'))
-    if (sabado) return sabado
-  }
-  return periodos.find(p => p.toLowerCase().startsWith('seg')) ?? periodos[0] ?? ''
+  const normalize = (s: string) =>
+    s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+
+  if (diaSemana === 0) return periodos.find(p => normalize(p).startsWith('dom')) ?? periodos[0] ?? ''
+  if (diaSemana === 6) return periodos.find(p => normalize(p).startsWith('sab')) ?? periodos[0] ?? ''
+  return periodos.find(p => normalize(p).startsWith('seg')) ?? periodos[0] ?? ''
 }
 
 function timeToMinutes(timeStr: string | null | undefined): number | null {
