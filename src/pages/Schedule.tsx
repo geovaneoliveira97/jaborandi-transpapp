@@ -20,8 +20,8 @@ function normalize(s: string) {
 
 function getPeriodoPorDia(schedules: BusLine['schedules'] | undefined): string {
   if (!schedules) return ''
-  const periodos  = Object.keys(schedules)
-  const dia       = new Date().getDay()
+  const periodos = Object.keys(schedules)
+  const dia      = new Date().getDay()
   if (dia === 0) return periodos.find(p => normalize(p).startsWith('dom')) ?? periodos[0] ?? ''
   if (dia === 6) return periodos.find(p => normalize(p).startsWith('sab')) ?? periodos[0] ?? ''
   return periodos.find(p => normalize(p).startsWith('seg')) ?? periodos[0] ?? ''
@@ -39,8 +39,8 @@ function getNow() {
 }
 
 export default function Schedule({ busLines, selectedLine, onSelectLine }: ScheduleProps) {
-  const { isDark }  = useTheme()
-  const line        = selectedLine ?? busLines[0] ?? null
+  const { isDark } = useTheme()
+  const line       = selectedLine ?? busLines[0] ?? null
   const [period, setPeriod]         = useState(() => getPeriodoPorDia(line?.schedules))
   const [nowMinutes, setNowMinutes] = useState(getNow)
 
@@ -49,7 +49,9 @@ export default function Schedule({ busLines, selectedLine, onSelectLine }: Sched
     return () => clearInterval(id)
   }, [])
 
-  useEffect(() => { setPeriod(getPeriodoPorDia(line?.schedules)) }, [line?.id])
+  useEffect(() => {
+    if (line?.schedules) setPeriod(getPeriodoPorDia(line.schedules))
+  }, [line?.id, line?.schedules])
 
   if (!line) return (
     <p className={`text-center py-16 text-sm ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
