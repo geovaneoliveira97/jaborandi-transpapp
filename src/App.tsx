@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 import { supabase } from './lib/supabase'
-import { ALERTS } from './data/alerts'
-import type { BusLine, AppView, Alert } from './types/types'
+import type { BusLine, AppView } from './types/types'
 import { useTheme } from './context/ThemeContext'
 
 import Header from './components/Header'
@@ -19,10 +18,6 @@ const PAGE_TITLES: Record<AppView, string> = {
   schedule: 'Horários',
   about:    'Sobre',
 }
-
-const ALERT_COUNT = ALERTS.filter(
-  (a: Alert) => a.type === 'danger' || a.type === 'warn'
-).length
 
 export default function App() {
   const { isDark } = useTheme()
@@ -67,36 +62,24 @@ export default function App() {
   }, [navigateTo])
 
   if (loading) return <LoadingScreen />
-
   if (erro) return <ErrorScreen onRetry={retry} />
 
   return (
     <div className={`min-h-screen pb-32 transition-colors duration-300 ${isDark ? 'bg-gray-950' : 'bg-gray-50'}`}>
       <Header title={PAGE_TITLES[view]} />
-
       <main className="max-w-lg mx-auto px-4 py-5">
         {view === 'home' && (
-          <Home
-            busLines={busLines}
-            alerts={ALERTS}
-            onNavigate={navigateTo}
-            onSelectLine={handleSelectLine}
-          />
+          <Home busLines={busLines} onNavigate={navigateTo} onSelectLine={handleSelectLine} />
         )}
         {view === 'lines' && (
           <Lines busLines={busLines} onSelectLine={handleSelectLine} />
         )}
         {view === 'schedule' && (
-          <Schedule
-            busLines={busLines}
-            selectedLine={selectedLine}
-            onSelectLine={setSelectedLine}
-          />
+          <Schedule busLines={busLines} selectedLine={selectedLine} onSelectLine={setSelectedLine} />
         )}
         {view === 'about' && <About />}
       </main>
-
-      <BottomNav view={view} onNavigate={navigateTo} alertCount={ALERT_COUNT} />
+      <BottomNav view={view} onNavigate={navigateTo} alertCount={0} />
     </div>
   )
 }
