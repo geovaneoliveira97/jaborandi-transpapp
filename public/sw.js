@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jaborandi-transpp-v1'
+const CACHE_NAME = 'jaborandi-transpp-v2'
 const STATIC_ASSETS = [
   '/',
   '/index.html',
