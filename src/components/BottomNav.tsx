@@ -1,6 +1,6 @@
 import type { AppView } from '../types/types'
 import type React from 'react'
-// Tipo do componente de ícone — função React sem props
+
 type IconComponent = () => React.ReactElement
 
 interface NavItem {
@@ -94,7 +94,6 @@ export default function BottomNav({ view, onNavigate, alertCount }: BottomNavPro
             <span aria-hidden="true" className="text-[9px] font-bold uppercase tracking-widest">
               {label}
             </span>
-            {/* Badge de alertas na aba Linhas */}
             {id === 'lines' && alertCount > 0 && (
               <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-red-500
                 text-white text-[9px] font-black flex items-center justify-center">

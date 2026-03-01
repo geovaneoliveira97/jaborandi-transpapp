@@ -1,6 +1,5 @@
 import type { BusLine, AppView } from '../types/types'
 import LineCard from '../components/LineCard'
-import { useTheme } from '../context/ThemeContext'
 
 interface HomeProps {
   busLines: BusLine[]
@@ -9,8 +8,6 @@ interface HomeProps {
 }
 
 export default function Home({ busLines, onNavigate, onSelectLine }: HomeProps) {
-  const { isDark } = useTheme()
-
   return (
     <div className="space-y-6 animate-enter">
 
@@ -72,8 +69,7 @@ export default function Home({ busLines, onNavigate, onSelectLine }: HomeProps) 
       {/* ── Linhas disponíveis ── */}
       {busLines.length > 0 && (
         <section>
-          <p className={`text-xs font-semibold uppercase tracking-widest mb-3
-            ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-3 text-gray-400">
             Linhas disponíveis
           </p>
           <div className="space-y-2">

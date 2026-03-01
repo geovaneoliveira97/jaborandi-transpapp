@@ -35,11 +35,7 @@ export default function AlertCard({ alert }: AlertCardProps) {
           {alert.lineNumber && (
             <span
               className="tag mt-2 inline-block"
-              style={{
-                backgroundColor: cfg.bg,
-                color: cfg.textColor,
-                border: `1px solid ${cfg.border}`,
-              }}
+              style={{ backgroundColor: cfg.bg, color: cfg.textColor, border: `1px solid ${cfg.border}` }}
             >
               Linha {alert.lineNumber}
             </span>

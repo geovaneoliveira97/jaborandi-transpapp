@@ -1,7 +1,6 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { supabase } from './lib/supabase'
 import type { BusLine, AppView } from './types/types'
-import { useTheme } from './context/ThemeContext'
 
 import Header from './components/Header'
 import BottomNav from './components/BottomNav'
@@ -22,13 +21,13 @@ const PAGE_TITLES: Record<AppView, string> = {
 function trackPageView(view: AppView) {
   if ((window as any).gtag) {
     (window as any).gtag('event', 'page_view', {
-      page_title:    PAGE_TITLES[view],  // "Linhas", "Horários"...
-      page_location: `${window.location.origin}/${view}`, // .../lines
+      page_title:    PAGE_TITLES[view],
+      page_location: `${window.location.origin}/${view}`,
     })
   }
 }
+
 export default function App() {
-  const { isDark } = useTheme()
   const [view, setView]                 = useState<AppView>('home')
   const [selectedLine, setSelectedLine] = useState<BusLine | null>(null)
   const [busLines, setBusLines]         = useState<BusLine[]>([])
@@ -61,7 +60,7 @@ export default function App() {
 
   const navigateTo = useCallback((newView: AppView) => {
     setView(newView)
-    trackPageView(newView) 
+    trackPageView(newView)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
 
@@ -74,7 +73,7 @@ export default function App() {
   if (erro) return <ErrorScreen onRetry={retry} />
 
   return (
-    <div className={`min-h-screen pb-32 transition-colors duration-300 ${isDark ? 'bg-gray-950' : 'bg-gray-50'}`}>
+    <div className="min-h-screen pb-32 bg-gray-50">
       <Header title={PAGE_TITLES[view]} />
       <main className="max-w-lg mx-auto px-4 py-5">
         {view === 'home' && (

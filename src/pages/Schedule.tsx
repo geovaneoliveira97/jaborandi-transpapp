@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
 import type { BusLine } from '../types/types'
-import { useTheme } from '../context/ThemeContext'
 import LineSelector from '../components/LineSelector'
 import PriceCard from '../components/PriceCard'
 import ScheduleTable from '../components/ScheduleTable'
@@ -39,8 +38,7 @@ function getNow() {
 }
 
 export default function Schedule({ busLines, selectedLine, onSelectLine }: ScheduleProps) {
-  const { isDark } = useTheme()
-  const line       = selectedLine ?? busLines[0] ?? null
+  const line = selectedLine ?? busLines[0] ?? null
   const [period, setPeriod]         = useState(() => getPeriodoPorDia(line?.schedules))
   const [nowMinutes, setNowMinutes] = useState(getNow)
 
@@ -54,7 +52,7 @@ export default function Schedule({ busLines, selectedLine, onSelectLine }: Sched
   }, [line?.id, line?.schedules])
 
   if (!line) return (
-    <p className={`text-center py-16 text-sm ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+    <p className="text-center py-16 text-sm text-gray-400">
       Nenhuma linha disponível.
     </p>
   )
@@ -91,16 +89,28 @@ export default function Schedule({ busLines, selectedLine, onSelectLine }: Sched
       )}
       <div className="flex gap-2" role="group" aria-label="Selecionar período">
         {periods.map(p => (
-          <button key={p} onClick={() => setPeriod(p)} aria-pressed={period === p}
+          <button
+            key={p}
+            onClick={() => setPeriod(p)}
+            aria-pressed={period === p}
             className={`flex-1 text-xs font-bold py-2.5 rounded-xl transition-colors
-              ${period === p ? 'bg-[#2ab76a] text-white' : isDark ? 'bg-gray-800 text-gray-400 border border-gray-700' : 'bg-gray-50 text-gray-500 border border-gray-200'}`}>
+              ${period === p
+                ? 'bg-[#2ab76a] text-white'
+                : 'bg-gray-50 text-gray-500 border border-gray-200'
+              }`}
+          >
             {p}
           </button>
         ))}
       </div>
-      <ScheduleTable detail={detail} nextIndex={nextIndex} lineColor={lineColor}
-        origem={nameParts[0] ?? 'Origem'} destino={nameParts[1] ?? 'Destino'}
-        paradaIntermed={intermediarias[0] ?? null} />
+      <ScheduleTable
+        detail={detail}
+        nextIndex={nextIndex}
+        lineColor={lineColor}
+        origem={nameParts[0] ?? 'Origem'}
+        destino={nameParts[1] ?? 'Destino'}
+        paradaIntermed={intermediarias[0] ?? null}
+      />
       <StopsList stops={stops} lineColor={lineColor} />
     </div>
   )
