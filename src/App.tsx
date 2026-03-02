@@ -36,28 +36,37 @@ export default function App() {
   const [retryKey, setRetryKey]         = useState(0)
 
   const retry = useCallback(() => setRetryKey(k => k + 1), [])
+useEffect(() => {
+  let cancelled = false
+  setLoading(true)
+  setErro(false)
 
-  useEffect(() => {
-    let cancelled = false
-    setLoading(true)
-    setErro(false)
-
-    supabase.from('bus_lines').select('*').then(({ data, error }) => {
-      if (cancelled) return
-      if (error) {
-        if (import.meta.env.DEV) console.error('Erro ao buscar linhas:', error)
-        setErro(true)
-      } else {
-        const lines = (data ?? []) as BusLine[]
-        setBusLines(lines)
-        setSelectedLine(prev => prev ?? lines[0] ?? null)
-      }
+  const timeout = setTimeout(() => {
+    if (!cancelled) {
+      setErro(true)
       setLoading(false)
-    })
+    }
+  }, 10000)
 
-    return () => { cancelled = true }
-  }, [retryKey])
+  supabase.from('bus_lines').select('*').then(({ data, error }) => {
+    clearTimeout(timeout) // ← FALTAVA ISSO
+    if (cancelled) return
+    if (error) {
+      if (import.meta.env.DEV) console.error('Erro ao buscar linhas:', error)
+      setErro(true)
+    } else {
+      const lines = (data ?? []) as BusLine[]
+      setBusLines(lines)
+      setSelectedLine(prev => prev ?? lines[0] ?? null)
+    }
+    setLoading(false)
+  })
 
+  return () => {
+    cancelled = true
+    clearTimeout(timeout) // ← E ISSO no cleanup
+  }
+}, [retryKey])
   const navigateTo = useCallback((newView: AppView) => {
     setView(newView)
     trackPageView(newView)
