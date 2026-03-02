@@ -24,10 +24,18 @@ self.addEventListener('activate', event => {
 })
 
 self.addEventListener('fetch', event => {
-  // Deixa requisições ao Supabase sempre ir para a rede
   if (event.request.url.includes('supabase.co')) {
     return
   }
 
   event.respondWith(
-    caches.match(e
+    caches.match(event.request).then(cached => {
+      return cached || fetch(event.request).catch(() => {
+        if (event.request.mode === 'navigate') {
+          return caches.match('/index.html')
+        }
+        return new Response('', { status: 408, statusText: 'Offline' })
+      })
+    })
+  )
+})
