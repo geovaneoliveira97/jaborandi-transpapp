@@ -14,10 +14,11 @@ export default function LineSelector({ busLines, line, onSelectLine, intermediar
 
   return (
     <div className="border border-gray-200 rounded-2xl bg-gray-50 p-4 space-y-3">
-      <label className="text-xs font-semibold uppercase tracking-widest text-gray-400">
+      <label htmlFor="line-select" className="text-xs font-semibold uppercase tracking-widest text-gray-400">
         Selecionar linha
       </label>
       <select
+        id="line-select"
         value={line.id}
         onChange={e => {
           const found = busLines.find(l => String(l.id) === e.target.value)

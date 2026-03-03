@@ -22,7 +22,7 @@ export default function PriceCard({ prices, lineColor }: PriceCardProps) {
           </div>
           <span className="text-sm font-black text-gray-900">
             <span className="text-xs font-semibold text-gray-400">R$ </span>
-            {valor.toFixed(2).replace('.', ',')}
+            {new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(valor)}
           </span>
         </div>
       ))}

@@ -19,6 +19,11 @@ const FILTERS: Filter[] = [
   { id: 'suspended', label: 'Suspensas' },
 ]
 
+// [6] normaliza acentos para busca tolerante (ex: "ribeirao" encontra "Ribeirão")
+function normalize(s: string) {
+  return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+}
+
 export default function Lines({ busLines, onSelectLine }: LinesProps) {
   const [filter, setFilter] = useState<'all' | LineStatus>('all')
   const [search, setSearch] = useState('')
@@ -26,8 +31,8 @@ export default function Lines({ busLines, onSelectLine }: LinesProps) {
   const filtered = useMemo(() =>
     busLines.filter(l => {
       const matchStatus = filter === 'all' || l.status === filter
-      const q = search.toLowerCase()
-      const matchSearch = q === '' || l.number.includes(q) || l.name.toLowerCase().includes(q)
+      const q = normalize(search)
+      const matchSearch = q === '' || l.number.includes(q) || normalize(l.name).includes(q)
       return matchStatus && matchSearch
     }),
     [busLines, filter, search]
@@ -48,6 +53,7 @@ export default function Lines({ busLines, onSelectLine }: LinesProps) {
         </svg>
         <input
           type="text"
+          aria-label="Buscar linha por número ou nome"
           placeholder="Buscar por número ou nome..."
           value={search}
           onChange={e => setSearch(e.target.value)}

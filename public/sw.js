@@ -44,15 +44,21 @@ self.addEventListener('fetch', event => {
   const url = event.request.url
 
   // 1. Dados do Supabase — Network-first com fallback para cache.
-  //    Se tiver rede: busca, salva no DATA_CACHE e retorna.
-  //    Se offline: serve o cache da última requisição bem-sucedida.
-  if (url.includes('supabase.co')) {
+  //    [10] só intercepta GET — POST/PATCH/DELETE não devem ser cacheados
+  if (url.includes('supabase.co') && event.request.method === 'GET') {
     event.respondWith(
       fetch(event.request.clone())
         .then(response => {
           if (response.ok) {
             const clone = response.clone()
-            caches.open(DATA_CACHE).then(cache => cache.put(event.request, clone))
+            // [9] limita o DATA_CACHE a 30 entradas para evitar crescimento infinito
+            caches.open(DATA_CACHE).then(async cache => {
+              await cache.put(event.request, clone)
+              const keys = await cache.keys()
+              if (keys.length > 30) {
+                await Promise.all(keys.slice(0, keys.length - 30).map(k => cache.delete(k)))
+              }
+            })
           }
           return response
         })

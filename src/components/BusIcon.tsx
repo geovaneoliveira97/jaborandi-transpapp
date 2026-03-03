@@ -1,12 +1,12 @@
 interface BusIconProps {
   className?: string
   stroke?: string
-  strokeWidth?: string | number
+  strokeWidth?: number
 }
 
 // Ícone único do ônibus — usado em Header, About, Home e BottomNav.
 // Versão canônica: sem as "pernas" (M8 19v2 / M16 19v2), consistente com BottomNav e Home.
-export default function BusIcon({ className = 'w-5 h-5', stroke = 'currentColor', strokeWidth = '2' }: BusIconProps) {
+export default function BusIcon({ className = 'w-5 h-5', stroke = 'currentColor', strokeWidth = 2 }: BusIconProps) {
   return (
     <svg
       viewBox="0 0 24 24"

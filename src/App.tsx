@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from './lib/supabase'
 import type { BusLine, AppView } from './types/types'
+import { isBusLine } from './types/types'
 
 import Header from './components/Header'
 import BottomNav from './components/BottomNav'
@@ -64,9 +65,17 @@ export default function App() {
           if (import.meta.env.DEV) console.error('Erro ao buscar linhas:', error)
           setErro(true)
         } else {
-          const lines = (data ?? []) as BusLine[]
+          const lines = (data ?? []).filter(isBusLine)
           setBusLines(lines)
-          setSelectedLine(prev => prev ?? lines[0] ?? null)
+          // [3] ao recarregar, re-sincroniza selectedLine com o objeto atualizado
+          // do banco (mesmo id, mas pode ter preços/horários novos)
+          setSelectedLine(prev => {
+            if (prev) {
+              const updated = lines.find(l => l.id === prev.id)
+              return updated ?? lines[0] ?? null
+            }
+            return lines[0] ?? null
+          })
         }
         setLoading(false)
       })
@@ -90,7 +99,7 @@ export default function App() {
   }, [navigateTo])
 
   if (loading) return <LoadingScreen />
-  if (erro) return <ErrorScreen onRetry={retry} />
+  if (erro)    return <ErrorScreen onRetry={retry} />
 
   return (
     <div className="min-h-screen pb-32 bg-gray-50">
@@ -103,7 +112,15 @@ export default function App() {
           <Lines busLines={busLines} onSelectLine={handleSelectLine} />
         )}
         {view === 'schedule' && (
-          <Schedule busLines={busLines} selectedLine={selectedLine} onSelectLine={setSelectedLine} />
+          // [4] se não há linhas, redireciona para home em vez de tela vazia
+          busLines.length === 0
+            ? <p className="text-center py-16 text-sm text-gray-400">
+                Nenhuma linha disponível.{' '}
+                <button onClick={() => navigateTo('home')} className="text-[#2ab76a] font-semibold underline">
+                  Voltar ao início
+                </button>
+              </p>
+            : <Schedule busLines={busLines} selectedLine={selectedLine} onSelectLine={setSelectedLine} />
         )}
         {view === 'about' && <About />}
       </main>

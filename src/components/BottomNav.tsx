@@ -1,7 +1,8 @@
+import type { ReactElement } from 'react'
 import type { AppView } from '../types/types'
 import BusIcon from './BusIcon'
 
-type IconComponent = () => JSX.Element
+type IconComponent = () => ReactElement
 
 interface NavItem {
   id: AppView

@@ -1,7 +1,12 @@
 export function LoadingScreen() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-white">
-      <div className="w-10 h-10 border-4 border-[#2ab76a] border-t-transparent rounded-full animate-spin" />
+    <div
+      role="status"
+      aria-live="polite"
+      aria-label="Carregando horários"
+      className="min-h-screen flex flex-col items-center justify-center gap-3 bg-white"
+    >
+      <div className="w-10 h-10 border-4 border-[#2ab76a] border-t-transparent rounded-full animate-spin" aria-hidden="true" />
       <p className="text-sm text-gray-400">Carregando horários...</p>
     </div>
   )

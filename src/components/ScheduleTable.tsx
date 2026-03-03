@@ -19,15 +19,15 @@ export default function ScheduleTable({
       <div
         className="grid grid-cols-3 text-center text-xs font-bold text-white py-3"
         style={{ backgroundColor: lineColor }}
-        aria-hidden="true"
+        role="row"
       >
-        <span>Parte de<br />{origem}</span>
-        <span>
+        <span role="columnheader">Parte de<br />{origem}</span>
+        <span role="columnheader">
           {paradaIntermed
             ? <>Passa em<br />{paradaIntermed}</>
             : <>Trajeto<br />direto</>}
         </span>
-        <span>Chega em<br />{destino}</span>
+        <span role="columnheader">Chega em<br />{destino}</span>
       </div>
 
       {/* Sem operação */}
