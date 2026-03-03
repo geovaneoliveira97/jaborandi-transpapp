@@ -19,7 +19,7 @@ const PAGE_TITLES: Record<AppView, string> = {
 }
 
 function trackPageView(view: AppView) {
-  if ((window as any).gtag) {
+  if (import.meta.env.PROD && (window as any).gtag) {
     (window as any).gtag('event', 'page_view', {
       page_title:    PAGE_TITLES[view],
       page_location: `${window.location.origin}/${view}`,
@@ -49,19 +49,28 @@ export default function App() {
       }
     }, 10000)
 
-    supabase.from('bus_lines').select('*').then(({ data, error }) => {
+    const handleError = () => {
       clearTimeout(timeout)
       if (cancelled) return
-      if (error) {
-        if (import.meta.env.DEV) console.error('Erro ao buscar linhas:', error)
-        setErro(true)
-      } else {
-        const lines = (data ?? []) as BusLine[]
-        setBusLines(lines)
-        setSelectedLine(prev => prev ?? lines[0] ?? null)
-      }
+      setErro(true)
       setLoading(false)
-    })
+    }
+
+    supabase.from('bus_lines').select('*')
+      .then(({ data, error }) => {
+        clearTimeout(timeout)
+        if (cancelled) return
+        if (error) {
+          if (import.meta.env.DEV) console.error('Erro ao buscar linhas:', error)
+          setErro(true)
+        } else {
+          const lines = (data ?? []) as BusLine[]
+          setBusLines(lines)
+          setSelectedLine(prev => prev ?? lines[0] ?? null)
+        }
+        setLoading(false)
+      })
+      .catch(handleError)
 
     return () => {
       cancelled = true

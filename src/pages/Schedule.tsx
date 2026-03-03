@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import type { BusLine } from '../types/types'
+import { DEFAULT_LINE_COLOR } from '../types/types'
 import LineSelector from '../components/LineSelector'
 import PriceCard from '../components/PriceCard'
 import ScheduleTable from '../components/ScheduleTable'
@@ -39,17 +40,27 @@ function getNow() {
 
 export default function Schedule({ busLines, selectedLine, onSelectLine }: ScheduleProps) {
   const line = selectedLine ?? busLines[0] ?? null
-  const [period, setPeriod]         = useState(() => getPeriodoPorDia(line?.schedules))
-  const [nowMinutes, setNowMinutes] = useState(getNow)
+
+  // manualPeriod: escolha manual do usuário. Quando a linha muda, é descartada.
+  // Evita o bug de 'period stale': com useEffect, havia 1 frame mostrando
+  // "Sem operação neste dia" incorretamente ao trocar de linha.
+  const [manualPeriod, setManualPeriod] = useState<string | null>(null)
+  const prevLineId = useRef<number | null>(line?.id ?? null)
+  const [nowMinutes, setNowMinutes]     = useState(getNow)
+
+  // Detecta troca de linha de forma síncrona (sem useEffect) para evitar flash
+  if (line?.id !== prevLineId.current) {
+    prevLineId.current = line?.id ?? null
+    setManualPeriod(null)
+  }
+
+  // Período efetivo: manual (se o usuário escolheu) ou automático por dia da semana
+  const period = manualPeriod ?? getPeriodoPorDia(line?.schedules)
 
   useEffect(() => {
     const id = setInterval(() => setNowMinutes(getNow()), 60_000)
     return () => clearInterval(id)
   }, [])
-
-  useEffect(() => {
-    if (line?.schedules) setPeriod(getPeriodoPorDia(line.schedules))
-  }, [line?.id, line?.schedules])
 
   if (!line) return (
     <p className="text-center py-16 text-sm text-gray-400">
@@ -74,16 +85,17 @@ export default function Schedule({ busLines, selectedLine, onSelectLine }: Sched
     return detail.findIndex(row => {
       const t = timeToMinutes(row.de)
       if (t === null) return false
+      // 1200 = 20h00 | 360 = 06h00: ajuste para viradas de meia-noite (ex: usuário às 23h, ônibus às 00h15)
       return (nowMinutes > 1200 && t < 360 ? t + 1440 : t) >= nowMinutes
     })
   }, [detail, nowMinutes])
 
-  const lineColor      = line.color ?? '#2ab76a'
+  const lineColor      = line.color ?? DEFAULT_LINE_COLOR
   const intermediarias = stops.slice(1, -1)
 
   return (
     <div className="space-y-5 animate-enter">
-      <LineSelector busLines={busLines} line={line} onSelectLine={onSelectLine} />
+      <LineSelector busLines={busLines} line={line} onSelectLine={onSelectLine} intermediarias={intermediarias} />
       {line.prices && Object.keys(line.prices).length > 0 && (
         <PriceCard prices={line.prices} lineColor={lineColor} />
       )}
@@ -91,7 +103,7 @@ export default function Schedule({ busLines, selectedLine, onSelectLine }: Sched
         {periods.map(p => (
           <button
             key={p}
-            onClick={() => setPeriod(p)}
+            onClick={() => setManualPeriod(p)}
             aria-pressed={period === p}
             className={`flex-1 text-xs font-bold py-2.5 rounded-xl transition-colors
               ${period === p

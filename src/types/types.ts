@@ -2,6 +2,10 @@
 export type AppView = 'home' | 'lines' | 'schedule' | 'about'
 export type LineStatus = 'normal' | 'delay' | 'suspended'
 
+export const DEFAULT_LINE_COLOR = '#2ab76a'
+
+export type AlertType = 'danger' | 'warn' | 'info'
+
 export interface ScheduleRow {
   de: string
   colina: string | null
@@ -19,15 +23,4 @@ export interface BusLine {
   schedules?: Record<string, string[]>
   schedule_detail?: Record<string, ScheduleRow[]>
   prices?: Record<string, number>
-}
-
-export type AlertType = 'danger' | 'warn' | 'info'
-
-export interface Alert {
-  id: number
-  title?: string
-  body: string
-  date?: string
-  lineNumber?: number
-  type: AlertType
 }

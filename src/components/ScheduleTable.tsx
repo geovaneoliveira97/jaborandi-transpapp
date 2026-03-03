@@ -1,4 +1,4 @@
-export interface ScheduleRow { de: string; colina: string | null; ate: string }
+import type { ScheduleRow } from '../types/types'
 
 interface ScheduleTableProps {
   detail: ScheduleRow[]
@@ -44,11 +44,12 @@ export default function ScheduleTable({
             </div>
           )}
           {detail.map((row, i) => {
+            const rowKey = `${row.de}-${row.ate}-${i}`
             const isPast = nextIndex === -1 ? true : i < nextIndex
             const isNext = i === nextIndex
             return (
               <div
-                key={i}
+                key={rowKey}
                 className={`grid grid-cols-3 text-center py-3 text-sm border-b border-gray-100 last:border-0 transition-opacity
                   ${isNext ? 'bg-white' : i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
                   ${isPast && !isNext ? 'opacity-35' : 'opacity-100'}`}

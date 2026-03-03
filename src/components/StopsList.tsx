@@ -17,7 +17,7 @@ export default function StopsList({ stops, lineColor }: StopsListProps) {
       </p>
       <ol className="space-y-0">
         {stops.map((stop, i) => (
-          <li key={stop} className="flex items-start gap-3">
+          <li key={`${i}-${stop}`} className="flex items-start gap-3">
             <div className="flex flex-col items-center shrink-0" aria-hidden="true">
               <div
                 className="w-2.5 h-2.5 rounded-full border-2 mt-1"

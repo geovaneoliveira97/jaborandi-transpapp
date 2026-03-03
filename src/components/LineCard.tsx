@@ -1,12 +1,11 @@
 import type { BusLine } from '../types/types'
+import { DEFAULT_LINE_COLOR } from '../types/types'
 import Badge from './Badge'
 
 interface LineCardProps {
   line: BusLine
   onSelect: (line: BusLine) => void
 }
-
-const DEFAULT_COLOR = '#2ab76a'
 
 const STATUS_LABEL: Record<string, string> = {
   normal:    'em operação normal',
@@ -16,7 +15,7 @@ const STATUS_LABEL: Record<string, string> = {
 
 export default function LineCard({ line, onSelect }: LineCardProps) {
   const isSuspended = line.status === 'suspended'
-  const lineColor   = line.color ?? DEFAULT_COLOR
+  const lineColor   = line.color ?? DEFAULT_LINE_COLOR
 
   const ariaLabel = isSuspended
     ? `Linha ${line.number} - ${line.name}, suspensa. Indisponível para seleção.`

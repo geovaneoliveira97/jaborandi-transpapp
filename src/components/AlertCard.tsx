@@ -1,7 +1,16 @@
-import type { Alert, AlertType } from '../types/types'
+// TODO: AlertCard ainda não está integrado. Requer implementação da feature de alertas
+// e dos tipos Alert/AlertType em types.ts antes de usar.
+import type { AlertType } from '../types/types'
 
 interface AlertCardProps {
-  alert: Alert
+  alert: {
+    id: number
+    title?: string
+    body: string
+    date?: string
+    lineNumber?: number
+    type: AlertType
+  }
 }
 
 interface AlertConfig {

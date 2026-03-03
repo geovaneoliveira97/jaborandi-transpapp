@@ -1,16 +1,16 @@
 import type { BusLine } from '../types/types'
-import Badge from '../components/Badge'
+import { DEFAULT_LINE_COLOR } from '../types/types'
+import Badge from './Badge'
 
 interface LineSelectorProps {
   busLines: BusLine[]
   line: BusLine
   onSelectLine: (line: BusLine) => void
+  intermediarias?: string[]
 }
 
-export default function LineSelector({ busLines, line, onSelectLine }: LineSelectorProps) {
-  const lineColor      = line.color ?? '#2ab76a'
-  const stops          = line.stops ?? []
-  const intermediarias = stops.slice(1, -1)
+export default function LineSelector({ busLines, line, onSelectLine, intermediarias = [] }: LineSelectorProps) {
+  const lineColor = line.color ?? DEFAULT_LINE_COLOR
 
   return (
     <div className="border border-gray-200 rounded-2xl bg-gray-50 p-4 space-y-3">

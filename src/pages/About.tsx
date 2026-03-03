@@ -1,3 +1,5 @@
+import BusIcon from '../components/BusIcon'
+
 export default function About() {
   return (
     <div className="space-y-4 animate-enter">
@@ -7,13 +9,7 @@ export default function About() {
           className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto"
           style={{ background: 'linear-gradient(135deg, #2ab76a, #166e3c)' }}
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"
-            strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8">
-            <rect x="3" y="5" width="18" height="13" rx="2" />
-            <path d="M3 10h18M8 5V3M16 5V3" />
-            <circle cx="7.5" cy="15" r="1" fill="white" stroke="none" />
-            <circle cx="16.5" cy="15" r="1" fill="white" stroke="none" />
-          </svg>
+          <BusIcon stroke="white" className="w-8 h-8" />
         </div>
 
         <h2 className="text-xl font-black text-gray-900">JaborandiTransp</h2>
