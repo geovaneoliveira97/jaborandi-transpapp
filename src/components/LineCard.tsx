@@ -23,7 +23,7 @@ export default function LineCard({ line, onSelect }: LineCardProps) {
 
   return (
     <button
-      onClick={isSuspended ? undefined : () => onSelect(line)}
+      onClick={() => onSelect(line)}
       disabled={isSuspended}
       aria-label={ariaLabel}
       className={`w-full text-left p-4 flex items-center gap-4 rounded-2xl

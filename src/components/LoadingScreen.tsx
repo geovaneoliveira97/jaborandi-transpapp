@@ -18,7 +18,7 @@ interface ErrorScreenProps {
 
 export function ErrorScreen({ onRetry }: ErrorScreenProps) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-8 text-center bg-white">
+    <div role="alert" className="min-h-screen flex flex-col items-center justify-center gap-4 px-8 text-center bg-white">
       <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-red-50">
         <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2"
           strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8">

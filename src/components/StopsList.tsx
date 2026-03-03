@@ -15,7 +15,7 @@ export default function StopsList({ stops, lineColor }: StopsListProps) {
       <p className="text-xs font-semibold uppercase tracking-widest mb-3 text-gray-400">
         Trajeto · {stops.length} paradas
       </p>
-      <ol className="space-y-0">
+      <ul className="space-y-0 list-none">
         {stops.map((stop, i) => (
           <li key={`${i}-${stop}`} className="flex items-start gap-3">
             <div className="flex flex-col items-center shrink-0" aria-hidden="true">
@@ -39,7 +39,7 @@ export default function StopsList({ stops, lineColor }: StopsListProps) {
             </p>
           </li>
         ))}
-      </ol>
+      </ul>
     </div>
   )
 }

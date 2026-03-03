@@ -63,10 +63,10 @@ export default function Home({ busLines, onNavigate, onSelectLine }: HomeProps) 
 
       {/* ── Linhas disponíveis ── */}
       {busLines.length > 0 && (
-        <section>
-          <p className="text-xs font-semibold uppercase tracking-widest mb-3 text-gray-400">
+        <section aria-label="Linhas disponíveis">
+          <h2 className="text-xs font-semibold uppercase tracking-widest mb-3 text-gray-400">
             Linhas disponíveis
-          </p>
+          </h2>
           <div className="space-y-2">
             {busLines.map(line => (
               <LineCard key={line.id} line={line} onSelect={onSelectLine} />

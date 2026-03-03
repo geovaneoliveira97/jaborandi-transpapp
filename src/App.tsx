@@ -90,7 +90,7 @@ export default function App() {
   const navigateTo = useCallback((newView: AppView) => {
     setView(newView)
     trackPageView(newView)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
 
   const handleSelectLine = useCallback((line: BusLine) => {

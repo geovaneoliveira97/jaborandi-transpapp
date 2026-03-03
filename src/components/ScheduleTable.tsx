@@ -13,7 +13,12 @@ export default function ScheduleTable({
   detail, nextIndex, lineColor, origem, destino, paradaIntermed,
 }: ScheduleTableProps) {
   return (
-    <div aria-live="polite" className="border border-gray-200 rounded-2xl overflow-hidden bg-gray-50">
+    <div
+      role="table"
+      aria-live="polite"
+      aria-label={`Horários de ${origem} a ${destino}`}
+      className="border border-gray-200 rounded-2xl overflow-hidden bg-gray-50"
+    >
 
       {/* Cabeçalho colorido */}
       <div
@@ -50,12 +55,13 @@ export default function ScheduleTable({
             return (
               <div
                 key={rowKey}
+                role="row"
                 className={`grid grid-cols-3 text-center py-3 text-sm border-b border-gray-100 last:border-0 transition-opacity
                   ${isNext ? 'bg-white' : i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
                   ${isPast && !isNext ? 'opacity-35' : 'opacity-100'}`}
                 style={isNext ? { borderLeft: `4px solid ${lineColor}` } : {}}
               >
-                <span className={`font-bold flex flex-col items-center gap-1 ${isNext ? 'text-gray-900' : 'text-gray-600'}`}>
+                <span role="cell" className={`font-bold flex flex-col items-center gap-1 ${isNext ? 'text-gray-900' : 'text-gray-600'}`}>
                   {row.de}
                   {isNext && (
                     <span
@@ -66,8 +72,9 @@ export default function ScheduleTable({
                     </span>
                   )}
                 </span>
-                <span className="self-center text-gray-500">{row.colina ?? '· · · · ·'}</span>
+                <span role="cell" className="self-center text-gray-500">{row.colina ?? '· · · · ·'}</span>
                 <span
+                  role="cell"
                   className="font-bold self-center"
                   style={{ color: isNext ? lineColor : '#9ca3af' }}
                 >

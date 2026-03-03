@@ -105,7 +105,9 @@ function ScheduleInner({
         <PriceCard prices={line.prices} lineColor={lineColor} />
       )}
       <div className="flex gap-2" role="group" aria-label="Selecionar período">
-        {periods.map(p => (
+        {periods.length === 0 ? (
+          <p className="text-xs text-gray-400 text-center w-full py-1">Horários não disponíveis.</p>
+        ) : periods.map(p => (
           <button
             key={p}
             onClick={() => setManualPeriod(p)}
