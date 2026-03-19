@@ -1,0 +1,14 @@
+# Dependências
+node_modules/
+
+# Build gerado pelo Vite (não versionado — é regenerado a cada deploy)
+dist/
+
+# Variáveis de ambiente — NUNCA versionar arquivos .env com credenciais reais
+.env
+.env.local
+.env.production
+
+# Cache e logs
+.DS_Store
+*.log

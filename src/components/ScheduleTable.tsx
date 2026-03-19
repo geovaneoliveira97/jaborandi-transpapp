@@ -1,0 +1,90 @@
+import type { ScheduleRow } from '../types/types'
+
+interface ScheduleTableProps {
+  detail: ScheduleRow[]
+  nextIndex: number
+  lineColor: string
+  origem: string
+  destino: string
+  paradaIntermed: string | null
+}
+
+export default function ScheduleTable({
+  detail, nextIndex, lineColor, origem, destino, paradaIntermed,
+}: ScheduleTableProps) {
+  return (
+    <div
+      role="table"
+      aria-live="polite"
+      aria-label={`Horários de ${origem} a ${destino}`}
+      className="border border-gray-200 rounded-2xl overflow-hidden bg-gray-50"
+    >
+
+      {/* Cabeçalho colorido */}
+      <div
+        className="grid grid-cols-3 text-center text-xs font-bold text-white py-3"
+        style={{ backgroundColor: lineColor }}
+        role="row"
+      >
+        <span role="columnheader">Parte de<br />{origem}</span>
+        <span role="columnheader">
+          {paradaIntermed
+            ? <>Passa em<br />{paradaIntermed}</>
+            : <>Trajeto<br />direto</>}
+        </span>
+        <span role="columnheader">Chega em<br />{destino}</span>
+      </div>
+
+      {/* Sem operação */}
+      {detail.length === 0 ? (
+        <div className="p-8 text-center">
+          <p className="text-3xl mb-2">🚫</p>
+          <p className="text-sm font-semibold text-gray-500">Sem operação neste dia</p>
+        </div>
+      ) : (
+        <>
+          {nextIndex === -1 && (
+            <div className="px-4 py-2 text-center border-b border-gray-200 bg-gray-100">
+              <p className="text-xs text-gray-400">Sem mais horários hoje para esta linha.</p>
+            </div>
+          )}
+          {detail.map((row, i) => {
+            const rowKey = `${row.de}-${row.ate}-${i}`
+            const isPast = nextIndex === -1 ? true : i < nextIndex
+            const isNext = i === nextIndex
+            return (
+              <div
+                key={rowKey}
+                role="row"
+                className={`grid grid-cols-3 text-center py-3 text-sm border-b border-gray-100 last:border-0 transition-opacity
+                  ${isNext ? 'bg-white' : i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
+                  ${isPast && !isNext ? 'opacity-35' : 'opacity-100'}`}
+                style={isNext ? { borderLeft: `4px solid ${lineColor}` } : {}}
+              >
+                <span role="cell" className={`font-bold flex flex-col items-center gap-1 ${isNext ? 'text-gray-900' : 'text-gray-600'}`}>
+                  {row.de}
+                  {isNext && (
+                    <span
+                      className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full"
+                      style={{ backgroundColor: lineColor + '22', color: lineColor }}
+                    >
+                      Próximo
+                    </span>
+                  )}
+                </span>
+                <span role="cell" className="self-center text-gray-500">{row.colina ?? '· · · · ·'}</span>
+                <span
+                  role="cell"
+                  className="font-bold self-center"
+                  style={{ color: isNext ? lineColor : '#9ca3af' }}
+                >
+                  {row.ate}
+                </span>
+              </div>
+            )
+          })}
+        </>
+      )}
+    </div>
+  )
+}
