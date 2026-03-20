@@ -1,4 +1,4 @@
-// public/sw.js — Service Worker do JaborandiTransp
+/ public/sw.js — Service Worker do JaborandiTransp
 //
 // O Service Worker é o responsável por habilitar o funcionamento offline do app
 // e a instalação como PWA (Progressive Web App) na tela inicial do celular.

@@ -25,8 +25,33 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 // inicial da página, garantindo que o app já esteja visível antes do SW iniciar.
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(err => {
-      console.error('Service Worker falhou ao registrar:', err)
-    })
+    navigator.serviceWorker.register('/sw.js')
+      .then(registration => {
+        // Força a verificação de atualização do SW a cada carregamento.
+        // Garante que todos os usuários recebam o SW mais recente sem
+        // precisar fechar e reabrir o app manualmente.
+        registration.update()
+
+        // Se houver um SW novo esperando para assumir o controle,
+        // recarrega a página automaticamente para ativá-lo imediatamente.
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing
+          if (!newWorker) return
+
+          newWorker.addEventListener('statechange', () => {
+            if (
+              newWorker.state === 'activated' &&
+              navigator.serviceWorker.controller
+            ) {
+              // Recarrega silenciosamente para o usuário passar a usar
+              // o novo SW sem precisar fechar o app.
+              window.location.reload()
+            }
+          })
+        })
+      })
+      .catch(err => {
+        console.error('Service Worker falhou ao registrar:', err)
+      })
   })
 }
