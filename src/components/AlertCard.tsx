@@ -1,16 +1,27 @@
-// TODO: AlertCard ainda não está integrado. Requer implementação da feature de alertas
-// e dos tipos Alert/AlertType em types.ts antes de usar.
+// src/components/AlertCard.tsx
+//
+// Componente de alerta — exibe avisos operacionais sobre as linhas de ônibus.
+//
+// STATUS: Componente pronto, aguardando integração da feature de alertas no App.tsx.
+// Para ativar: implementar busca de alertas no Supabase (tabela 'alerts'),
+// passar os dados via prop para as páginas que precisarem, e passar alertCount
+// real para o BottomNav.
+//
+// Tipos de alerta suportados: 'danger' (suspensão), 'warn' (atraso), 'info' (aviso geral).
+
 import type { AlertType } from '../types/types'
 
+export interface Alert {
+  id:          number
+  title?:      string
+  body:        string
+  date?:       string
+  lineNumber?: number
+  type:        AlertType
+}
+
 interface AlertCardProps {
-  alert: {
-    id: number
-    title?: string
-    body: string
-    date?: string
-    lineNumber?: number
-    type: AlertType
-  }
+  alert: Alert
 }
 
 interface AlertConfig {
@@ -30,15 +41,18 @@ export default function AlertCard({ alert }: AlertCardProps) {
   const cfg = ALERT_CONFIG[alert.type] ?? ALERT_CONFIG.info
   return (
     <div
+      role="alert"
       className="rounded-2xl p-4 border"
       style={{ backgroundColor: cfg.bg, borderColor: cfg.border }}
     >
       <div className="flex items-start gap-3">
-        <span className="text-xl leading-none mt-0.5">{cfg.icon}</span>
+        <span className="text-xl leading-none mt-0.5" aria-hidden="true">{cfg.icon}</span>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <p className="font-bold text-sm" style={{ color: cfg.textColor }}>{alert.title}</p>
-            <span className="text-[11px] text-gray-400 shrink-0">{alert.date}</span>
+            {alert.date && (
+              <time className="text-[11px] text-gray-400 shrink-0">{alert.date}</time>
+            )}
           </div>
           <p className="text-gray-500 text-sm mt-1 leading-relaxed">{alert.body}</p>
           {alert.lineNumber && (

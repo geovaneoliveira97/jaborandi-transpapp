@@ -8,6 +8,7 @@
 //   • Controlar a navegação entre as quatro páginas (home, lines, schedule, about)
 //   • Manter a linha selecionada sincronizada mesmo após recarregamento dos dados
 //   • Registrar visualizações de página no Google Analytics (apenas em produção)
+//   • Exibir banner de atualização quando uma nova versão do PWA estiver disponível
 
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from './lib/supabase'
@@ -17,6 +18,7 @@ import { isBusLine } from './types/types'
 import Header from './components/Header'
 import BottomNav from './components/BottomNav'
 import { LoadingScreen, ErrorScreen } from './components/LoadingScreen'
+import UpdateBanner from './components/UpdateBanner'
 
 import Home     from './pages/Home'
 import Lines    from './pages/Lines'
@@ -35,11 +37,18 @@ const PAGE_TITLES: Record<AppView, string> = {
 // Executado apenas em produção para não poluir os dados de analytics
 // com os acessos feitos durante o desenvolvimento.
 function trackPageView(view: AppView) {
-  if (import.meta.env.PROD && (window as any).gtag) {
-    (window as any).gtag('event', 'page_view', {
+  if (import.meta.env.PROD && typeof window.gtag === 'function') {
+    window.gtag('event', 'page_view', {
       page_title:    PAGE_TITLES[view],
       page_location: `${window.location.origin}/${view}`,
     })
+  }
+}
+
+// Declaração de tipo global para gtag (injetado condicionalmente pelo index.html)
+declare global {
+  interface Window {
+    gtag?: (...args: unknown[]) => void
   }
 }
 
@@ -49,11 +58,26 @@ export default function App() {
   const [busLines, setBusLines]         = useState<BusLine[]>([])
   const [loading, setLoading]           = useState(true)
   const [erro, setErro]                 = useState(false)
+  const [updateAvailable, setUpdateAvailable] = useState(false)
 
   // retryKey é incrementado quando o usuário clica em "Tentar novamente",
   // forçando o useEffect a executar novamente e refazer a busca.
   const [retryKey, setRetryKey] = useState(0)
   const retry = useCallback(() => setRetryKey(k => k + 1), [])
+
+  // Escuta o evento de nova versão do SW disparado pelo main.tsx
+  useEffect(() => {
+    const handler = () => setUpdateAvailable(true)
+    window.addEventListener('sw-update-available', handler)
+    return () => window.removeEventListener('sw-update-available', handler)
+  }, [])
+
+  // Força a ativação do novo SW e recarrega a página
+  const applyUpdate = useCallback(() => {
+    navigator.serviceWorker.getRegistration().then(reg => {
+      reg?.waiting?.postMessage({ type: 'SKIP_WAITING' })
+    })
+  }, [])
 
   // Busca as linhas de ônibus do Supabase ao montar o componente
   // ou quando o usuário solicita uma nova tentativa (retryKey muda).
@@ -69,7 +93,7 @@ export default function App() {
         setErro(true)
         setLoading(false)
       }
-    }, 10000)
+    }, 10_000)
 
     const handleError = () => {
       clearTimeout(timeout)
@@ -85,7 +109,7 @@ export default function App() {
 
         if (error) {
           // Log de erro exibido apenas em desenvolvimento para facilitar depuração
-          if (import.meta.env.DEV) console.error('Erro ao buscar linhas:', error)
+          if (import.meta.env.DEV) console.error('[App] Erro ao buscar linhas:', error)
           setErro(true)
         } else {
           // isBusLine valida cada objeto antes de usar, garantindo que o app
@@ -94,8 +118,6 @@ export default function App() {
           setBusLines(lines)
 
           // Re-sincroniza a linha selecionada com os dados mais recentes do banco.
-          // Necessário porque os preços ou horários podem ter mudado desde a última
-          // vez que o usuário abriu o app.
           setSelectedLine(prev => {
             if (prev) {
               const updated = lines.find(l => l.id === prev.id)
@@ -137,6 +159,12 @@ export default function App() {
   return (
     <div className="min-h-screen pb-32 bg-gray-50">
       <Header title={PAGE_TITLES[view]} />
+
+      {/* Banner de atualização: aparece quando uma nova versão do PWA está disponível */}
+      {updateAvailable && (
+        <UpdateBanner onUpdate={applyUpdate} onDismiss={() => setUpdateAvailable(false)} />
+      )}
+
       <main className="max-w-lg mx-auto px-4 py-5">
         {view === 'home' && (
           <Home busLines={busLines} onNavigate={navigateTo} onSelectLine={handleSelectLine} />

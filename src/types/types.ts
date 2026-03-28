@@ -22,14 +22,12 @@ export type AlertType = 'danger' | 'warn' | 'info'
 // 'colina' é a parada intermediária (ex: Colina-SP) — pode ser nula
 // em linhas sem parada intermediária (trajeto direto).
 export interface ScheduleRow {
-  de:     string       // horário de partida (ex: "06:15")
+  de:     string        // horário de partida (ex: "06:15")
   colina: string | null // horário na parada intermediária, se houver
-  ate:    string       // horário de chegada no destino (ex: "07:45")
+  ate:    string        // horário de chegada no destino (ex: "07:45")
 }
 
 // Estrutura completa de uma linha de ônibus conforme armazenada no Supabase.
-// Os campos opcionais (marcados com '?') podem não estar preenchidos no banco
-// dependendo do nível de detalhe cadastrado para cada linha.
 export interface BusLine {
   id:        number
   number:    string      // identificador visual da linha (ex: "101")

@@ -2,33 +2,20 @@
 //
 // Configuração do Vite — ferramenta de build e servidor de desenvolvimento.
 //
-// Este arquivo resolve um desafio específico de deploy no Render (hospedagem):
-// no Render, variáveis de ambiente ficam em '/etc/secrets/.env' por questões
-// de segurança da plataforma. Em desenvolvimento local, o Vite lê o '.env'
-// da raiz do projeto seguindo o comportamento padrão.
+// Variáveis de ambiente:
+//   - Em desenvolvimento local: arquivo '.env' na raiz do projeto (padrão do Vite).
+//   - Em produção no Render: defina as variáveis diretamente no painel "Environment"
+//     do serviço, sem usar arquivo .env. O Vite lê process.env automaticamente
+//     durante o build — não é necessário nenhuma lógica de path customizado.
 //
-// O 'existsSync' detecta automaticamente em qual ambiente o código está rodando
-// e aponta o Vite para o local correto das variáveis, sem precisar de dois
-// arquivos de configuração diferentes.
+// Variáveis necessárias:
+//   VITE_SUPABASE_URL       → URL do projeto Supabase
+//   VITE_SUPABASE_ANON_KEY  → Chave anônima pública do Supabase
+//   VITE_GA_ID              → ID do Google Analytics (ex: G-XXXXXXXXXX)
 
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { existsSync } from 'fs'
 
-export default defineConfig(({ mode }) => {
-  // Detecta se está no Render (produção) ou no ambiente local (desenvolvimento)
-  const envDir = existsSync('/etc/secrets/.env')
-    ? '/etc/secrets'   // caminho do Render em produção
-    : process.cwd()    // raiz do projeto em desenvolvimento local
-
-  const env = loadEnv(mode, envDir, '')
-
-  return {
-    plugins: [react()],
-    // Injeta as variáveis de ambiente no bundle para uso com import.meta.env
-    define: {
-      'import.meta.env.VITE_SUPABASE_URL':      JSON.stringify(env.VITE_SUPABASE_URL),
-      'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(env.VITE_SUPABASE_ANON_KEY),
-    },
-  }
+export default defineConfig({
+  plugins: [react()],
 })

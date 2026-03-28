@@ -13,5 +13,16 @@
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl     = import.meta.env.VITE_SUPABASE_URL     as string
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_KEY as string
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string
+
+// Validação explícita: se as variáveis não estiverem configuradas, o erro é
+// detectado na inicialização — não em tempo de execução com mensagens confusas.
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error(
+    '[supabase] Variáveis de ambiente não encontradas.\n' +
+    'Defina VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY no arquivo .env (local) ' +
+    'ou no painel de variáveis do Render (produção).'
+  )
+}
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)

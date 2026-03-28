@@ -24,18 +24,14 @@ interface ScheduleProps {
 }
 
 // Ordem de exibição dos períodos nas abas de seleção.
-// Garante que "Seg–Sex" sempre apareça primeiro, independente
-// da ordem em que os dados vierem do banco.
 const PERIOD_ORDER = ['Seg–Sex', 'Sábado', 'Domingo']
 
-// Remove acentos para comparação de strings (igual ao usado em Lines.tsx)
+// Remove acentos para comparação de strings tolerante a variações de digitação.
 function normalize(s: string) {
   return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
 }
 
 // Detecta qual período corresponde ao dia da semana atual.
-// Busca a chave no schedule_detail que começa com 'seg', 'sab' ou 'dom',
-// tornando a detecção flexível mesmo se o banco usar nomes ligeiramente diferentes.
 function getPeriodoPorDia(schedules: BusLine['schedule_detail'] | undefined): string {
   if (!schedules) return ''
   const periodos = Object.keys(schedules)
@@ -53,18 +49,11 @@ function timeToMinutes(t: string | null | undefined): number | null {
   return isNaN(h) || isNaN(m) ? null : h * 60 + m
 }
 
-// Retorna o horário atual em minutos desde meia-noite.
-// Separado em função própria para facilitar o intervalo de atualização periódica.
 function getNow() {
   const now = new Date()
   return now.getHours() * 60 + now.getMinutes()
 }
 
-// ScheduleInner é separado do componente principal para aproveitar uma
-// característica do React: quando a prop 'key' muda, o componente é
-// completamente desmontado e remontado. Isso reseta o estado 'manualPeriod'
-// automaticamente toda vez que o usuário troca de linha, sem precisar
-// de useEffect ou lógica extra de reset.
 function ScheduleInner({
   busLines,
   line,
@@ -74,20 +63,14 @@ function ScheduleInner({
   line:         BusLine
   onSelectLine: (line: BusLine) => void
 }) {
-  // null = período automático (detectado pelo dia da semana)
-  // string = período escolhido manualmente pelo usuário
   const [manualPeriod, setManualPeriod] = useState<string | null>(null)
 
-  // Atualiza o horário atual a cada minuto para que o "Próximo" se mova
-  // automaticamente após um ônibus partir, sem precisar recarregar o app.
   const [nowMinutes, setNowMinutes] = useState(getNow)
   useEffect(() => {
     const id = setInterval(() => setNowMinutes(getNow()), 60_000)
     return () => clearInterval(id)
   }, [])
 
-  // Ordena os períodos conforme PERIOD_ORDER para exibição consistente nas abas.
-  // Períodos não listados em PERIOD_ORDER são colocados ao final.
   const periods = useMemo(
     () =>
       Object.keys(line.schedule_detail ?? {}).sort((a, b) => {
@@ -100,53 +83,59 @@ function ScheduleInner({
     [line.schedule_detail]
   )
 
-  // Período efetivo: preferência manual do usuário, ou automático por dia da semana
   const period = manualPeriod ?? getPeriodoPorDia(line.schedule_detail)
 
-  // Memoiza o array de horários para evitar que nextIndex recalcule
-  // desnecessariamente quando outros estados mudam.
   const detail = useMemo(
     () => line.schedule_detail?.[period] ?? [],
     [line.schedule_detail, period]
   )
 
-  // Encontra o índice do próximo horário disponível com base na hora atual.
-  // O ajuste de +1440 minutos (equivalente a 24h) resolve o caso de linhas
-  // que partem após meia-noite: se já são 21h (1260 min) e o próximo horário
-  // é 01h (60 min), sem o ajuste ele pareceria "no passado".
-  // Com o ajuste, 60 min vira 1500 min, que é corretamente identificado como futuro.
+  // Calcula o próximo horário usando distância circular (corrige o bug de meia-noite).
+  // A fórmula (t - now + 1440) % 1440 garante que qualquer horário futuro
+  // seja sempre representado como um número positivo de 0 a 1439,
+  // independente de cruzar a meia-noite. O menor valor positivo é o próximo horário.
   const nextIndex = useMemo(() => {
     if (!detail.length) return -1
-    return detail.findIndex(row => {
+    let bestIdx = -1
+    let bestDist = Infinity
+    detail.forEach((row, i) => {
       const t = timeToMinutes(row.de)
-      if (t === null) return false
-      return (nowMinutes > 1200 && t < 360 ? t + 1440 : t) >= nowMinutes
+      if (t === null) return
+      const dist = (t - nowMinutes + 1440) % 1440
+      if (dist < bestDist) {
+        bestDist = dist
+        bestIdx  = i
+      }
     })
+    // Se a menor distância for 0 (horário exato agora) ou muito grande (>23h, todos passaram),
+    // consideramos que não há próximo horário relevante para destacar.
+    return bestDist > 1380 ? -1 : bestIdx
   }, [detail, nowMinutes])
 
   const lineColor      = line.color ?? DEFAULT_LINE_COLOR
   const stops          = line.stops ?? []
-  const intermediarias = stops.slice(1, -1) // remove origem e destino, mantém apenas paradas do meio
+  const intermediarias = stops.slice(1, -1)
   const nameParts      = (line.name ?? '').split(' → ')
 
   return (
     <div className="space-y-5 animate-enter">
       <LineSelector busLines={busLines} line={line} onSelectLine={onSelectLine} intermediarias={intermediarias} />
 
-      {/* Tabela de preços: exibida apenas se a linha tiver preços cadastrados */}
       {line.prices && Object.keys(line.prices).length > 0 && (
         <PriceCard prices={line.prices} lineColor={lineColor} />
       )}
 
-      {/* Abas de período: Seg–Sex / Sábado / Domingo */}
-      <div className="flex gap-2" role="group" aria-label="Selecionar período">
+      {/* Abas de período usando semântica de tab para acessibilidade */}
+      <div role="tablist" aria-label="Selecionar período" className="flex gap-2">
         {periods.length === 0 ? (
           <p className="text-xs text-gray-400 text-center w-full py-1">Horários não disponíveis.</p>
         ) : periods.map(p => (
           <button
             key={p}
+            role="tab"
             onClick={() => setManualPeriod(p)}
-            aria-pressed={period === p}
+            aria-selected={period === p}
+            aria-controls="schedule-table"
             className={`flex-1 text-xs font-bold py-2.5 rounded-xl transition-colors
               ${period === p
                 ? 'bg-[#2ab76a] text-white'
@@ -158,14 +147,16 @@ function ScheduleInner({
         ))}
       </div>
 
-      <ScheduleTable
-        detail={detail}
-        nextIndex={nextIndex}
-        lineColor={lineColor}
-        origem={nameParts[0] ?? 'Origem'}
-        destino={nameParts[1] ?? 'Destino'}
-        paradaIntermed={intermediarias[0] ?? null}
-      />
+      <div id="schedule-table" role="tabpanel">
+        <ScheduleTable
+          detail={detail}
+          nextIndex={nextIndex}
+          lineColor={lineColor}
+          origem={nameParts[0] ?? 'Origem'}
+          destino={nameParts[1] ?? 'Destino'}
+          paradaIntermed={intermediarias[0] ?? null}
+        />
+      </div>
       <StopsList stops={stops} lineColor={lineColor} />
     </div>
   )

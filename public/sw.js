@@ -1,32 +1,18 @@
-/ public/sw.js — Service Worker do JaborandiTransp
-//
-// O Service Worker é o responsável por habilitar o funcionamento offline do app
-// e a instalação como PWA (Progressive Web App) na tela inicial do celular.
+// public/sw.js — Service Worker do JaborandiTransp
 //
 // Estratégias de cache implementadas:
+//   1. Dados do Supabase → Network-first com fallback para cache
+//   2. Fontes (Google Fonts) → Stale-While-Revalidate
+//   3. Assets estáticos (JS, CSS, imagens gerados pelo Vite) → Cache-first
 //
-//   1. Navegação (index.html) → Network-first
-//      Sempre tenta buscar o index.html atualizado da rede.
-//      Garante que novos deploys sejam carregados sem hard refresh.
-//
-//   2. Dados do Supabase → Network-first
-//      Sempre tenta buscar horários atualizados da rede.
-//      Se não houver internet, entrega a última versão salva no cache.
-//
-//   3. Fontes (Google Fonts) → Stale-While-Revalidate
-//      Serve a fonte do cache imediatamente (app carrega rápido),
-//      e atualiza a fonte em segundo plano para a próxima visita.
-//
-//   4. Assets estáticos (JS, CSS, imagens gerados pelo Vite) → Cache-first
-//      Entrega do cache para máxima velocidade de carregamento.
-//      Os nomes de arquivo com hash do Vite (ex: index-abc123.js) garantem
-//      que versões desatualizadas nunca sejam entregues após um novo deploy.
+// Segurança: apenas respostas com status 200 e tipo não-opaco são armazenadas,
+// evitando que erros 404/500 ou respostas cross-origin sem CORS sejam servidos
+// indefinidamente no modo offline.
 
 const CACHE_NAME = 'jaborandi-transp-v4'
 const DATA_CACHE = 'jaborandi-data-v4'
 const FONT_CACHE = 'jaborandi-fonts-v4'
 
-// Arquivos essenciais para o funcionamento offline do app
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -35,7 +21,7 @@ const STATIC_ASSETS = [
   '/icon-512.png',
 ]
 
-// ── INSTALL ──────────────────────────────────────────────────────────────────
+// ── INSTALL ─────────────────────────────────────────────────────────────────
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -60,38 +46,29 @@ self.addEventListener('activate', event => {
   )
 })
 
-// ── FETCH ─────────────────────────────────────────────────────────────────────
+// Mensagem do App para pular a espera e ativar o novo SW imediatamente
+self.addEventListener('message', event => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting()
+  }
+})
+
+// ── FETCH ────────────────────────────────────────────────────────────────────
 self.addEventListener('fetch', event => {
   const url = event.request.url
 
-  // 1. Navegação (index.html) — Network-first.
-  //    Sempre busca o index.html atualizado da rede para garantir que
-  //    novos deploys sejam carregados sem precisar de hard refresh.
-  //    Usa o cache apenas como fallback quando não há internet.
-  if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          const clone = response.clone()
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone))
-          return response
-        })
-        .catch(() => caches.match('/index.html'))
-    )
-    return
-  }
-
-  // 2. Dados do Supabase — Network-first com fallback para cache.
-  //    Apenas requisições GET são interceptadas: POST/PATCH/DELETE
-  //    não devem ser cacheados pois alteram dados no servidor.
+  // 1. Dados do Supabase — Network-first com fallback para cache.
+  //    Apenas GET é interceptado: POST/PATCH/DELETE nunca devem ser cacheados.
   if (url.includes('supabase.co') && event.request.method === 'GET') {
     event.respondWith(
       fetch(event.request.clone())
         .then(response => {
-          if (response.ok) {
+          // Só armazena respostas bem-sucedidas (evita cachear erros do servidor)
+          if (response.ok && response.status === 200) {
             const clone = response.clone()
             caches.open(DATA_CACHE).then(async cache => {
               await cache.put(event.request, clone)
+              // Limita o DATA_CACHE a 30 entradas para evitar crescimento ilimitado
               const keys = await cache.keys()
               if (keys.length > 30) {
                 await Promise.all(keys.slice(0, keys.length - 30).map(k => cache.delete(k)))
@@ -105,15 +82,16 @@ self.addEventListener('fetch', event => {
     return
   }
 
-  // 3. Fontes do Google — Stale-While-Revalidate.
-  //    Serve do cache imediatamente para não bloquear a renderização,
-  //    e atualiza a fonte em segundo plano para a próxima visita.
+  // 2. Fontes do Google — Stale-While-Revalidate.
   if (url.includes('fonts.googleapis.com') || url.includes('fonts.gstatic.com')) {
     event.respondWith(
       caches.open(FONT_CACHE).then(cache =>
         cache.match(event.request).then(cached => {
           const networkFetch = fetch(event.request).then(response => {
-            cache.put(event.request, response.clone())
+            // Só armazena fontes com resposta válida (não opacos/erros)
+            if (response.ok && response.type !== 'opaque') {
+              cache.put(event.request, response.clone())
+            }
             return response
           })
           return cached || networkFetch
@@ -123,17 +101,18 @@ self.addEventListener('fetch', event => {
     return
   }
 
-  // 4. Assets estáticos (JS, CSS, imagens) — Cache-first.
-  //    Serve do cache para máxima velocidade. Se não estiver em cache,
-  //    busca na rede e armazena para as próximas visitas.
+  // 3. Assets estáticos (JS, CSS, imagens) — Cache-first.
   event.respondWith(
     caches.match(event.request).then(cached => {
       if (cached) return cached
 
       return fetch(event.request)
         .then(response => {
+          // Armazena apenas respostas bem-sucedidas e não-opacas da própria origem
           if (
             response.ok &&
+            response.status === 200 &&
+            response.type !== 'opaque' &&
             (event.request.url.startsWith(self.location.origin) ||
               event.request.destination === 'script' ||
               event.request.destination === 'style')
@@ -144,6 +123,11 @@ self.addEventListener('fetch', event => {
           return response
         })
         .catch(() => {
+          // Se a navegação falhar (sem internet), entrega o index.html em cache
+          // para que o React possa renderizar a tela de erro offline.
+          if (event.request.mode === 'navigate') {
+            return caches.match('/index.html')
+          }
           return new Response('', { status: 503, statusText: 'Service Unavailable' })
         })
     })
