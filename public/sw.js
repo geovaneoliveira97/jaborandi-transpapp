@@ -9,9 +9,9 @@
 // evitando que erros 404/500 ou respostas cross-origin sem CORS sejam servidos
 // indefinidamente no modo offline.
 
-const CACHE_NAME = 'jaborandi-transp-v5'
-const DATA_CACHE = 'jaborandi-data-v5'
-const FONT_CACHE = 'jaborandi-fonts-v5'
+const CACHE_NAME = 'jaborandi-transp-v6'
+const DATA_CACHE = 'jaborandi-data-v6'
+const FONT_CACHE = 'jaborandi-fonts-v6'
 
 const STATIC_ASSETS = [
   '/',
