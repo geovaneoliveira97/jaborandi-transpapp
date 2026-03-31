@@ -31,6 +31,13 @@ const PAGE_TITLES: Record<AppView, string> = {
   about:    'Sobre',
 }
 
+// Declaração de tipo para o Umami
+declare global {
+  interface Window {
+    umami?: { track: (event: string, data?: object) => void }
+  }
+}
+
 export default function App() {
   const [view, setView]                 = useState<AppView>('home')
   const [selectedLine, setSelectedLine] = useState<BusLine | null>(null)
@@ -108,7 +115,12 @@ export default function App() {
 
   const navigateTo = useCallback((newView: AppView) => {
     setView(newView)
-    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+
+    // Rastreia a navegação no Umami
+    if (typeof window.umami !== 'undefined') {
+      window.umami.track('pageview', { url: `/${newView}`, title: PAGE_TITLES[newView] })
+    }
   }, [])
 
   const handleSelectLine = useCallback((line: BusLine) => {
@@ -138,7 +150,7 @@ export default function App() {
           busLines.length === 0
             ? <p className="text-center py-16 text-sm text-gray-400">
                 Nenhuma linha disponível.{' '}
-                <button onClick={() => navigateTo('home')} className="text-[#2ab76a] font-semibold underline">
+                <button onClick={() => navigateTo('home')} className="text-[#2ab76a] font-semibond underline">
                   Voltar ao início
                 </button>
               </p>
