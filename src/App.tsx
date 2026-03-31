@@ -7,7 +7,6 @@
 //   • Buscar as linhas de ônibus do banco (Supabase) ao iniciar
 //   • Controlar a navegação entre as quatro páginas (home, lines, schedule, about)
 //   • Manter a linha selecionada sincronizada mesmo após recarregamento dos dados
-//   • Registrar visualizações de página no Google Analytics (apenas em produção)
 //   • Exibir banner de atualização quando uma nova versão do PWA estiver disponível
 
 import { useState, useEffect, useCallback } from 'react'
@@ -25,31 +24,11 @@ import Lines    from './pages/Lines'
 import Schedule from './pages/Schedule'
 import About    from './pages/About'
 
-// Títulos exibidos no cabeçalho para cada página
 const PAGE_TITLES: Record<AppView, string> = {
   home:     'Início',
   lines:    'Linhas',
   schedule: 'Horários',
   about:    'Sobre',
-}
-
-// Envia evento de visualização de página ao Google Analytics.
-// Executado apenas em produção para não poluir os dados de analytics
-// com os acessos feitos durante o desenvolvimento.
-function trackPageView(view: AppView) {
-  if (import.meta.env.PROD && typeof window.gtag === 'function') {
-    window.gtag('event', 'page_view', {
-      page_title:    PAGE_TITLES[view],
-      page_location: `${window.location.origin}/${view}`,
-    })
-  }
-}
-
-// Declaração de tipo global para gtag (injetado condicionalmente pelo index.html)
-declare global {
-  interface Window {
-    gtag?: (...args: unknown[]) => void
-  }
 }
 
 export default function App() {
@@ -60,8 +39,6 @@ export default function App() {
   const [erro, setErro]                 = useState(false)
   const [updateAvailable, setUpdateAvailable] = useState(false)
 
-  // retryKey é incrementado quando o usuário clica em "Tentar novamente",
-  // forçando o useEffect a executar novamente e refazer a busca.
   const [retryKey, setRetryKey] = useState(0)
   const retry = useCallback(() => setRetryKey(k => k + 1), [])
 
@@ -80,14 +57,11 @@ export default function App() {
   }, [])
 
   // Busca as linhas de ônibus do Supabase ao montar o componente
-  // ou quando o usuário solicita uma nova tentativa (retryKey muda).
   useEffect(() => {
     let cancelled = false
     setLoading(true)
     setErro(false)
 
-    // Timeout de 10 segundos: se o banco não responder,
-    // exibe tela de erro em vez de deixar o usuário esperando indefinidamente.
     const timeout = setTimeout(() => {
       if (!cancelled) {
         setErro(true)
@@ -108,16 +82,12 @@ export default function App() {
         if (cancelled) return
 
         if (error) {
-          // Log de erro exibido apenas em desenvolvimento para facilitar depuração
           if (import.meta.env.DEV) console.error('[App] Erro ao buscar linhas:', error)
           setErro(true)
         } else {
-          // isBusLine valida cada objeto antes de usar, garantindo que o app
-          // não quebre se o banco retornar um registro com campo faltando.
           const lines = (data ?? []).filter(isBusLine)
           setBusLines(lines)
 
-          // Re-sincroniza a linha selecionada com os dados mais recentes do banco.
           setSelectedLine(prev => {
             if (prev) {
               const updated = lines.find(l => l.id === prev.id)
@@ -128,26 +98,19 @@ export default function App() {
         }
         setLoading(false)
       })
-      .catch(handleError)
+      .then(undefined, handleError)
 
-    // Função de limpeza: cancela a atualização de estado se o componente
-    // for desmontado antes da resposta chegar (evita vazamento de memória).
     return () => {
       cancelled = true
       clearTimeout(timeout)
     }
   }, [retryKey])
 
-  // Navega para uma nova página, registra o evento no Analytics
-  // e rola a tela para o topo para garantir boa experiência no celular.
   const navigateTo = useCallback((newView: AppView) => {
     setView(newView)
-    trackPageView(newView)
     if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
 
-  // Ao selecionar uma linha (na tela Home ou Lines), navega automaticamente
-  // para a tela de horários com a linha escolhida já carregada.
   const handleSelectLine = useCallback((line: BusLine) => {
     setSelectedLine(line)
     navigateTo('schedule')
@@ -160,7 +123,6 @@ export default function App() {
     <div className="min-h-screen pb-32 bg-gray-50">
       <Header title={PAGE_TITLES[view]} />
 
-      {/* Banner de atualização: aparece quando uma nova versão do PWA está disponível */}
       {updateAvailable && (
         <UpdateBanner onUpdate={applyUpdate} onDismiss={() => setUpdateAvailable(false)} />
       )}
@@ -173,8 +135,6 @@ export default function App() {
           <Lines busLines={busLines} onSelectLine={handleSelectLine} />
         )}
         {view === 'schedule' && (
-          // Proteção: se não houver linhas carregadas, exibe mensagem amigável
-          // em vez de renderizar uma tela de horários vazia.
           busLines.length === 0
             ? <p className="text-center py-16 text-sm text-gray-400">
                 Nenhuma linha disponível.{' '}

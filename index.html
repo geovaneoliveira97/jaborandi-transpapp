@@ -23,8 +23,8 @@
     <!-- Content Security Policy -->
     <meta http-equiv="Content-Security-Policy" content="
       default-src 'self';
-      script-src 'self' 'unsafe-inline' https://www.googletagmanager.com;
-      connect-src 'self' https://*.supabase.co https://www.google-analytics.com;
+      script-src 'self' 'unsafe-inline' https://cloud.umami.is;
+      connect-src 'self' https://*.supabase.co https://cloud.umami.is;
       style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
       font-src 'self' https://fonts.gstatic.com;
       img-src 'self' data: https:;
@@ -32,23 +32,8 @@
       worker-src 'self';
     " />
 
-    <!-- Google Analytics: ID injetado via variável de ambiente no build -->
-    <script>
-      // O GA só carrega se o ID estiver configurado via VITE_GA_ID
-      (function() {
-        var gaId = '__VITE_GA_ID__';
-        if (!gaId || gaId === '__VITE_GA_ID__') return;
-        var s = document.createElement('script');
-        s.async = true;
-        s.src = 'https://www.googletagmanager.com/gtag/js?id=' + gaId;
-        document.head.appendChild(s);
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){ dataLayer.push(arguments); }
-        window.gtag = gtag;
-        gtag('js', new Date());
-        gtag('config', gaId);
-      })();
-    </script>
+    <!-- Umami Analytics -->
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="6c7e9920-b70e-473c-87fc-42b6b2d6a4b4"></script>
   </head>
   <body>
     <div id="root"></div>
