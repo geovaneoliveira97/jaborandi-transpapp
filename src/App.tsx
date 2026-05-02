@@ -22,13 +22,13 @@ import UpdateBanner from './components/UpdateBanner'
 import Home     from './pages/Home'
 import Lines    from './pages/Lines'
 import Schedule from './pages/Schedule'
-import About    from './pages/About'
+import Admin    from './pages/Admin'
 
 const PAGE_TITLES: Record<AppView, string> = {
   home:     'Início',
   lines:    'Linhas',
   schedule: 'Horários',
-  about:    'Sobre',
+  admin:    'Admin',
 }
 
 // Declaração de tipo para o Umami
@@ -156,7 +156,7 @@ export default function App() {
               </p>
             : <Schedule busLines={busLines} selectedLine={selectedLine} onSelectLine={setSelectedLine} />
         )}
-        {view === 'about' && <About />}
+        {view === 'admin' && <Admin />}
       </main>
       <BottomNav view={view} onNavigate={navigateTo} alertCount={0} />
     </div>

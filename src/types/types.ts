@@ -7,7 +7,7 @@
 // e o TypeScript indicará todos os lugares que precisam de ajuste.
 
 // Páginas disponíveis no app — usadas para controlar a navegação
-export type AppView = 'home' | 'lines' | 'schedule' | 'about'
+export type AppView = 'home' | 'lines' | 'schedule' | 'admin'
 
 // Possíveis estados operacionais de uma linha de ônibus
 export type LineStatus = 'normal' | 'delay' | 'suspended'
