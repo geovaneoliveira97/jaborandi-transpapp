@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,7 +8,7 @@
   html { @apply antialiased; }
 
   body {
-    background-color: #ffffff;
+    background-color: #f0f4f2;
     color: #1a1a1a;
     font-family: 'Sora', sans-serif;
     -webkit-tap-highlight-color: transparent;
@@ -15,29 +17,43 @@
   * { box-sizing: border-box; }
 
   ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: #f9fafb; }
-  ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 2px; }
+  ::-webkit-scrollbar-track { background: #f0f4f2; }
+  ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
 }
 
 @layer components {
   .card {
-    @apply bg-gray-50 border border-gray-200 rounded-2xl;
+    @apply bg-white border-0 rounded-2xl;
   }
 
   .btn-primary {
-    @apply bg-[#2ab76a] hover:bg-[#1e9e57] text-white font-bold
-           px-5 py-2.5 rounded-xl transition-colors duration-200 active:scale-95;
+    @apply bg-[#2ab76a] hover:bg-[#1e9e57] text-white font-semibold
+           px-5 py-2.5 rounded-xl transition-colors duration-200 active:scale-95
+           inline-flex items-center gap-2;
   }
 
   .tag {
-    @apply text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg;
+    @apply text-[10px] font-semibold px-2.5 py-1 rounded-full;
+  }
+
+  .nav-item-active {
+    @apply rounded-xl;
+    background-color: rgba(42, 183, 106, 0.12);
   }
 }
 
 @keyframes fadeSlideUp {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 .animate-enter {
-  animation: fadeSlideUp 0.25s ease-out both;
+  animation: fadeSlideUp 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.dot-pulse {
+  animation: pulse-dot 2s ease-in-out infinite;
 }
