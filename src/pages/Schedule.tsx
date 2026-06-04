@@ -83,20 +83,20 @@ function buildWhatsAppText(line: BusLine): string {
 function ShareWhatsAppButton({ line }: { line: BusLine }) {
   const [copied, setCopied] = useState(false)
 
+  const whatsappText = useMemo(() => buildWhatsAppText(line), [line])
+
   const handleShare = useCallback(() => {
-    const text = buildWhatsAppText(line)
-    const url  = `https://wa.me/?text=${encodeURIComponent(text)}`
+    const url = `https://wa.me/?text=${encodeURIComponent(whatsappText)}`
     window.open(url, '_blank')
-  }, [line])
+  }, [whatsappText])
 
   const handleCopy = useCallback(async () => {
-    const text = buildWhatsAppText(line)
     try {
-      await navigator.clipboard.writeText(text)
+      await navigator.clipboard.writeText(whatsappText)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch { /* ignora */ }
-  }, [line])
+  }, [whatsappText])
 
   return (
     <div className="bg-white rounded-2xl p-4 flex items-center gap-3">
