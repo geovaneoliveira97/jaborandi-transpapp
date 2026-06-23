@@ -15,7 +15,7 @@ export default function Home({ busLines, onNavigate, onSelectLine }: HomeProps) 
       {/* Hero banner */}
       <section
         className="rounded-3xl p-6 relative overflow-hidden"
-        style={{ backgroundColor: '#2ab76a' }}
+        style={{ background: 'linear-gradient(135deg, #2ab76a 0%, #1a8f4f 100%)' }}
       >
         {/* Localização */}
         <div className="inline-flex items-center gap-1.5 bg-white/20 rounded-full px-3 py-1 mb-4">
@@ -27,10 +27,10 @@ export default function Home({ busLines, onNavigate, onSelectLine }: HomeProps) 
           <span className="text-[11px] font-semibold text-white">Jaborandi–SP</span>
         </div>
 
-        <h1 className="text-[22px] font-bold text-white leading-tight mb-1">
+        <h1 className="text-[24px] font-bold text-white leading-tight mb-1">
           Para onde vamos<br />hoje?
         </h1>
-        <p className="text-white/75 text-sm mb-5">
+        <p className="text-white/70 text-sm mb-5">
           Horários oficiais Rápido do Oeste
         </p>
 
@@ -39,19 +39,19 @@ export default function Home({ busLines, onNavigate, onSelectLine }: HomeProps) 
           <button
             onClick={() => onNavigate('lines')}
             className="flex-1 flex items-center justify-center gap-2
-              bg-white/25 hover:bg-white/35
-              text-white font-semibold py-2.5 rounded-2xl
-              transition-colors active:scale-95 text-sm"
+              bg-white text-[#1a8f4f] font-bold py-3 rounded-2xl
+              shadow-md transition-all active:scale-95 text-sm"
           >
-            <BusIcon className="w-4 h-4" />
+            <BusIcon className="w-4 h-4" stroke="#1a8f4f" />
             Ver Linhas
           </button>
           <button
             onClick={() => onNavigate('schedule')}
             className="flex-1 flex items-center justify-center gap-2
-              bg-white/25 hover:bg-white/35
-              text-white font-semibold py-2.5 rounded-2xl
-              transition-colors active:scale-95 text-sm"
+              bg-white/20 hover:bg-white/30
+              text-white font-bold py-3 rounded-2xl
+              border border-white/25
+              transition-all active:scale-95 text-sm"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
               strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4" aria-hidden="true">
@@ -63,8 +63,9 @@ export default function Home({ busLines, onNavigate, onSelectLine }: HomeProps) 
         </div>
 
         {/* Círculos decorativos */}
-        <div className="absolute -right-10 -top-10 w-36 h-36 rounded-full bg-white/8 pointer-events-none" />
-        <div className="absolute -right-4 -bottom-8 w-24 h-24 rounded-full bg-white/5 pointer-events-none" />
+        <div className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-white/8 pointer-events-none" />
+        <div className="absolute -right-4 -bottom-8 w-28 h-28 rounded-full bg-white/5 pointer-events-none" />
+        <div className="absolute left-1/2 -bottom-12 w-20 h-20 rounded-full bg-black/5 pointer-events-none" />
       </section>
 
       {/* Lista de linhas */}

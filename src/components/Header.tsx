@@ -1,18 +1,52 @@
+import { useState, useRef, useEffect, useCallback } from 'react'
 import BusIcon from './BusIcon'
 
 interface HeaderProps {
   title: string
+  onAdminAccess: () => void
 }
 
-export default function Header({ title }: HeaderProps) {
+export default function Header({ title, onAdminAccess }: HeaderProps) {
+  const [tapCount, setTapCount] = useState(0)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => { if (timerRef.current) clearTimeout(timerRef.current) }
+  }, [])
+
+  const handleLogoTap = useCallback(() => {
+    setTapCount(prev => {
+      const next = prev + 1
+      if (timerRef.current) clearTimeout(timerRef.current)
+      if (next >= 5) {
+        onAdminAccess()
+        return 0
+      }
+      timerRef.current = setTimeout(() => setTapCount(0), 3000)
+      return next
+    })
+  }, [onAdminAccess])
+
   return (
-    <header className="sticky top-0 z-40 bg-white border-b border-gray-100 px-4 py-3 flex items-center gap-3">
-      <div
-        className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+    <header
+      className="sticky top-0 z-40 px-4 py-3 flex items-center gap-3"
+      style={{
+        background: 'rgba(255,255,255,0.92)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        borderBottom: '1px solid rgba(0,0,0,0.06)',
+      }}
+    >
+      <button
+        onClick={handleLogoTap}
+        aria-label="JaborandiTransp"
+        className="w-9 h-9 rounded-full flex items-center justify-center shrink-0
+          transition-transform active:scale-90"
         style={{ backgroundColor: '#2ab76a' }}
       >
         <BusIcon stroke="white" className="w-5 h-5" />
-      </div>
+      </button>
+
       <div className="flex-1 min-w-0">
         <p className="text-[10px] font-semibold text-[#2ab76a] uppercase tracking-widest leading-none">
           JaborandiTransp
@@ -21,17 +55,6 @@ export default function Header({ title }: HeaderProps) {
           {title}
         </p>
       </div>
-      <button
-        aria-label="Notificações"
-        className="w-9 h-9 rounded-full flex items-center justify-center text-gray-400
-          hover:bg-gray-100 transition-colors active:scale-95"
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
-          strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-        </svg>
-      </button>
     </header>
   )
 }

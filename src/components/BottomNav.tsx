@@ -5,7 +5,7 @@ import BusIcon from './BusIcon'
 type IconComponent = () => ReactElement
 
 interface NavItem {
-  id: AppView
+  id: Exclude<AppView, 'admin'>
   label: string
   Icon: IconComponent
 }
@@ -44,17 +44,6 @@ const NAV_ITEMS: NavItem[] = [
       </svg>
     ),
   },
-  {
-    id: 'admin',
-    label: 'Admin',
-    Icon: () => (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
-        strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5" aria-hidden="true">
-        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-        <path d="M7 11V7a5 5 0 0110 0v4" />
-      </svg>
-    ),
-  },
 ]
 
 export default function BottomNav({ view, onNavigate, alertCount }: BottomNavProps) {
@@ -62,41 +51,48 @@ export default function BottomNav({ view, onNavigate, alertCount }: BottomNavPro
     <nav
       role="navigation"
       aria-label="Navegação principal"
-      className="fixed bottom-0 left-0 right-0 z-50
-        bg-white border-t border-gray-100
-        flex justify-around items-center
-        px-2 py-2 pb-safe"
-      style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}
+      className="fixed bottom-0 left-0 right-0 z-50 px-4"
+      style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
     >
-      {NAV_ITEMS.map(({ id, label, Icon }) => {
-        const isActive = view === id
-        return (
-          <button
-            key={id}
-            onClick={() => onNavigate(id)}
-            aria-label={`Ir para ${label}`}
-            aria-current={isActive ? 'page' : undefined}
-            className={`relative flex flex-col items-center gap-1 py-2 px-4 rounded-xl
-              transition-all duration-200 active:scale-90
-              ${isActive
-                ? 'text-[#2ab76a]'
-                : 'text-gray-400 hover:text-gray-500'
-              }`}
-            style={isActive ? { backgroundColor: 'rgba(42,183,106,0.10)' } : {}}
-          >
-            <Icon />
-            <span aria-hidden="true" className="text-[9px] font-semibold tracking-wide">
-              {label}
-            </span>
-            {id === 'lines' && alertCount > 0 && (
-              <span className="absolute top-1 right-2 w-4 h-4 rounded-full bg-red-500
-                text-white text-[9px] font-black flex items-center justify-center">
-                {alertCount}
-              </span>
-            )}
-          </button>
-        )
-      })}
+      <div
+        className="flex justify-around items-center px-2 py-2 rounded-2xl"
+        style={{
+          background: 'rgba(255,255,255,0.92)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          boxShadow: '0 -1px 0 rgba(0,0,0,0.04), 0 8px 32px rgba(0,0,0,0.12)',
+          border: '1px solid rgba(255,255,255,0.6)',
+        }}
+      >
+        {NAV_ITEMS.map(({ id, label, Icon }) => {
+          const isActive = view === id
+          return (
+            <button
+              key={id}
+              onClick={() => onNavigate(id)}
+              aria-label={`Ir para ${label}`}
+              aria-current={isActive ? 'page' : undefined}
+              className={`relative flex items-center gap-2 py-2.5 rounded-xl
+                transition-all duration-200 active:scale-90
+                ${isActive
+                  ? 'bg-[#2ab76a] text-white px-4'
+                  : 'text-gray-400 px-4 hover:text-gray-600'
+                }`}
+            >
+              <Icon />
+              {isActive && (
+                <span className="text-xs font-bold whitespace-nowrap">{label}</span>
+              )}
+              {id === 'lines' && alertCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500
+                  text-white text-[9px] font-black flex items-center justify-center">
+                  {alertCount}
+                </span>
+              )}
+            </button>
+          )
+        })}
+      </div>
     </nav>
   )
 }

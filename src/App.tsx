@@ -18,7 +18,7 @@ const PAGE_TITLES: Record<AppView, string> = {
   home:     'Início',
   lines:    'Linhas',
   schedule: 'Horários',
-  admin:    'Admin',
+  admin:    'Configurações',
 }
 
 declare global {
@@ -106,7 +106,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#f0f4f2]">
-      <Header title={PAGE_TITLES[view]} />
+      <Header title={PAGE_TITLES[view]} onAdminAccess={() => navigateTo('admin')} />
 
       {updateAvailable && (
         <UpdateBanner onUpdate={applyUpdate} onDismiss={() => setUpdateAvailable(false)} />
