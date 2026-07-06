@@ -4,6 +4,10 @@ import { supabase } from '../lib/supabase'
 import type { BusLine, ScheduleRow } from '../types/types'
 import { isBusLine } from '../types/types'
 import type { User } from '@supabase/supabase-js'
+import BrandBusIcon from '../components/icons/BrandBusIcon'
+import { ChevronDown, Clock, Ticket, LogOut, Plus, Trash2 } from '../components/icons'
+import Card from '../components/ui/Card'
+import Button from '../components/ui/Button'
 
 function isValidTime(t: string): boolean {
   if (t === '') return true
@@ -29,48 +33,42 @@ function LoginScreen({ onLogin }: { onLogin: (user: User) => void }) {
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center animate-enter">
-      <div className="card p-8 w-full max-w-sm space-y-6">
+      <Card className="p-8 w-full max-w-sm space-y-6">
         <div className="text-center space-y-2">
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto bg-[#2ab76a]">
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2}
-              strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0110 0v4" />
-            </svg>
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto bg-brand">
+            <BrandBusIcon stroke="white" className="w-8 h-8" />
           </div>
-          <h2 className="text-xl font-bold text-gray-900">Área Admin</h2>
-          <p className="text-xs text-gray-400">Acesso restrito ao gestor</p>
+          <h2 className="text-xl font-bold text-ink">Área Admin</h2>
+          <p className="text-xs text-muted">Acesso restrito ao gestor</p>
         </div>
         <div className="space-y-3">
           <input type="email" placeholder="E-mail" value={email}
             onChange={e => setEmail(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleLogin()}
-            className="w-full border border-gray-100 rounded-xl px-4 py-3 text-sm bg-gray-50
-              focus:outline-none focus:border-[#2ab76a] transition-colors" />
+            className="w-full border border-line rounded-xl px-4 py-3.5 text-sm bg-bg text-ink
+              focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand-soft transition-all" />
           <input type="password" placeholder="Senha" value={senha}
             onChange={e => setSenha(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleLogin()}
-            className="w-full border border-gray-100 rounded-xl px-4 py-3 text-sm bg-gray-50
-              focus:outline-none focus:border-[#2ab76a] transition-colors" />
+            className="w-full border border-line rounded-xl px-4 py-3.5 text-sm bg-bg text-ink
+              focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand-soft transition-all" />
         </div>
-        {erro && <p className="text-xs text-red-500 text-center bg-red-50 rounded-xl py-2 px-3">{erro}</p>}
-        <button onClick={handleLogin} disabled={loading}
-          className="w-full py-3 rounded-xl text-sm font-bold text-white bg-[#2ab76a]
-            transition-all active:scale-95 disabled:opacity-60">
+        {erro && <p className="text-xs text-danger text-center bg-danger-soft rounded-xl py-2 px-3">{erro}</p>}
+        <Button onClick={handleLogin} disabled={loading} fullWidth>
           {loading ? 'Entrando…' : 'Entrar'}
-        </button>
-      </div>
+        </Button>
+      </Card>
     </div>
   )
 }
 
 // ─── EDITOR DE HORÁRIOS ───────────────────────────────────────────────────────
 interface RowEditorProps {
-  rows: ScheduleRow[]
+  rows:     ScheduleRow[]
   onChange: (rows: ScheduleRow[]) => void
-  origem: string
-  destino: string
-  parada: string | null
+  origem:   string
+  destino:  string
+  parada:   string | null
 }
 
 function RowEditor({ rows, onChange, origem, destino, parada }: RowEditorProps) {
@@ -81,20 +79,20 @@ function RowEditor({ rows, onChange, origem, destino, parada }: RowEditorProps) 
   }
 
   const cellClass = (val: string) =>
-    `w-full text-center border rounded-lg px-1 py-2 text-xs font-mono focus:outline-none focus:ring-2 transition-all
-    ${!isValidTime(val) ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-white focus:ring-[#2ab76a]/40 focus:border-[#2ab76a]'}`
+    `w-full text-center border rounded-lg px-1 py-2.5 text-xs font-mono focus:outline-none focus:ring-2 transition-all
+    ${!isValidTime(val) ? 'border-danger bg-danger-soft' : 'border-line bg-white focus:ring-brand-soft focus:border-brand'}`
 
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 text-center">
-        <span className="text-[10px] font-bold text-gray-400 uppercase">{origem}</span>
-        <span className="text-[10px] font-bold text-gray-400 uppercase">{parada ?? 'Direto'}</span>
-        <span className="text-[10px] font-bold text-gray-400 uppercase">{destino}</span>
+        <span className="text-[10px] font-bold text-muted uppercase">{origem}</span>
+        <span className="text-[10px] font-bold text-muted uppercase">{parada ?? 'Direto'}</span>
+        <span className="text-[10px] font-bold text-muted uppercase">{destino}</span>
         <span />
       </div>
 
       {rows.length === 0 && (
-        <p className="text-center text-xs text-gray-400 py-3">Nenhum horário cadastrado.</p>
+        <p className="text-center text-xs text-muted py-3">Nenhum horário cadastrado.</p>
       )}
 
       {rows.map((row, i) => (
@@ -110,21 +108,22 @@ function RowEditor({ rows, onChange, origem, destino, parada }: RowEditorProps) 
             onChange={e => updateCell(i, 'ate', e.target.value)}
             placeholder="HH:MM" className={cellClass(row.ate)} />
           <button onClick={() => onChange(rows.filter((_, idx) => idx !== i))}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400
-              hover:text-red-500 hover:bg-red-50 transition-all active:scale-90">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
-              strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
+            aria-label="Remover horário"
+            className="w-11 h-11 flex items-center justify-center rounded-lg text-muted
+              hover:text-danger hover:bg-danger-soft transition-all active:scale-90">
+            <Trash2 className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>
       ))}
 
       <button onClick={() => onChange([...rows, { de: '', colina: parada ? '' : null, ate: '' }])}
-        className="w-full py-2.5 rounded-xl border-2 border-dashed border-[#2ab76a]/40
-          text-xs font-bold text-[#2ab76a] hover:border-[#2ab76a] hover:bg-[#2ab76a]/5
-          transition-all active:scale-95">
-        + Adicionar horário
+        className="w-full py-3 rounded-xl border-2 border-dashed border-brand/40
+          text-xs font-bold text-brand hover:border-brand hover:bg-brand-soft
+          transition-all active:scale-95 flex items-center justify-center gap-1.5"
+        style={{ minHeight: 44 }}
+      >
+        <Plus className="w-3.5 h-3.5" aria-hidden="true" />
+        Adicionar horário
       </button>
     </div>
   )
@@ -132,7 +131,7 @@ function RowEditor({ rows, onChange, origem, destino, parada }: RowEditorProps) 
 
 // ─── EDITOR DE PREÇOS ─────────────────────────────────────────────────────────
 interface PriceEditorProps {
-  prices: Record<string, number>
+  prices:   Record<string, number>
   onChange: (prices: Record<string, number>) => void
 }
 
@@ -168,13 +167,13 @@ function PriceEditor({ prices, onChange }: PriceEditorProps) {
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-[1fr_auto_auto] gap-2 text-center">
-        <span className="text-[10px] font-bold text-gray-400 uppercase text-left">Trecho</span>
-        <span className="text-[10px] font-bold text-gray-400 uppercase">R$</span>
+        <span className="text-[10px] font-bold text-muted uppercase text-left">Trecho</span>
+        <span className="text-[10px] font-bold text-muted uppercase">R$</span>
         <span />
       </div>
 
       {entries.length === 0 && (
-        <p className="text-center text-xs text-gray-400 py-3">Nenhum preço cadastrado.</p>
+        <p className="text-center text-xs text-muted py-3">Nenhum preço cadastrado.</p>
       )}
 
       {entries.map(([key, val]) => (
@@ -188,8 +187,8 @@ function PriceEditor({ prices, onChange }: PriceEditorProps) {
                 updateTrecho(key, e.target.value.trim())
               }
             }}
-            className="border border-gray-200 rounded-lg px-3 py-2 text-xs bg-white
-              focus:outline-none focus:border-[#2ab76a] transition-colors"
+            className="border border-line rounded-lg px-3 py-2.5 text-xs bg-white
+              focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand-soft transition-all"
           />
           {/* Valor */}
           <input
@@ -197,26 +196,27 @@ function PriceEditor({ prices, onChange }: PriceEditorProps) {
             inputMode="decimal"
             defaultValue={val.toFixed(2).replace('.', ',')}
             onBlur={e => updateValor(key, e.target.value)}
-            className="w-20 text-center border border-gray-200 rounded-lg px-2 py-2 text-xs
-              font-mono bg-white focus:outline-none focus:border-[#2ab76a] transition-colors"
+            className="w-20 text-center border border-line rounded-lg px-2 py-2.5 text-xs
+              font-mono bg-white focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand-soft transition-all"
           />
           {/* Remover */}
           <button onClick={() => removeTrecho(key)}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400
-              hover:text-red-500 hover:bg-red-50 transition-all active:scale-90">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
-              strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
+            aria-label={`Remover trecho ${key}`}
+            className="w-11 h-11 flex items-center justify-center rounded-lg text-muted
+              hover:text-danger hover:bg-danger-soft transition-all active:scale-90">
+            <Trash2 className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>
       ))}
 
       <button onClick={addTrecho}
-        className="w-full py-2.5 rounded-xl border-2 border-dashed border-[#2ab76a]/40
-          text-xs font-bold text-[#2ab76a] hover:border-[#2ab76a] hover:bg-[#2ab76a]/5
-          transition-all active:scale-95">
-        + Adicionar trecho
+        className="w-full py-3 rounded-xl border-2 border-dashed border-brand/40
+          text-xs font-bold text-brand hover:border-brand hover:bg-brand-soft
+          transition-all active:scale-95 flex items-center justify-center gap-1.5"
+        style={{ minHeight: 44 }}
+      >
+        <Plus className="w-3.5 h-3.5" aria-hidden="true" />
+        Adicionar trecho
       </button>
     </div>
   )
@@ -321,68 +321,69 @@ function AdminPanel({ user, onLogout }: { user: User; onLogout: () => void }) {
     <div className="space-y-4 animate-enter">
 
       {/* Cabeçalho */}
-      <div className="card p-4 flex items-center justify-between">
+      <Card className="p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#2ab76a] flex items-center justify-center">
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2}
-              strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0110 0v4" />
-            </svg>
+          <div className="w-10 h-10 rounded-xl bg-brand flex items-center justify-center">
+            <BrandBusIcon stroke="white" className="w-4 h-4" />
           </div>
           <div>
-            <p className="text-xs font-bold text-gray-900">Painel Admin</p>
-            <p className="text-[10px] text-gray-400 truncate max-w-[160px]">{user.email}</p>
+            <p className="text-xs font-bold text-ink">Painel Admin</p>
+            <p className="text-[10px] text-muted truncate max-w-[160px]">{user.email}</p>
           </div>
         </div>
         <button onClick={onLogout}
-          className="text-xs font-semibold text-gray-400 hover:text-red-500
-            bg-gray-100 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-all">
+          aria-label="Sair da área admin"
+          className="flex items-center gap-1.5 text-xs font-semibold text-muted hover:text-danger
+            bg-bg hover:bg-danger-soft px-3 py-2.5 rounded-lg transition-all"
+          style={{ minHeight: 44 }}
+        >
+          <LogOut className="w-3.5 h-3.5" aria-hidden="true" />
           Sair
         </button>
-      </div>
+      </Card>
 
       {/* Seletor de linha */}
-      <div className="card p-4 space-y-2">
-        <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Linha</label>
+      <Card className="p-4 space-y-2">
+        <label className="text-xs font-bold text-muted uppercase tracking-wide">Linha</label>
         {loadingLines ? (
-          <p className="text-xs text-gray-400 py-2">Carregando linhas…</p>
+          <p className="text-xs text-muted py-2">Carregando linhas…</p>
         ) : (
-          <select value={selectedId ?? ''}
-            onChange={e => setSelectedId(Number(e.target.value))}
-            className="w-full border border-gray-100 rounded-xl px-3 py-2.5 text-sm bg-gray-50
-              focus:outline-none focus:border-[#2ab76a] transition-colors">
-            {busLines.map(l => (
-              <option key={l.id} value={l.id}>{l.number} – {l.name}</option>
-            ))}
-          </select>
+          <div className="relative">
+            <select value={selectedId ?? ''}
+              onChange={e => setSelectedId(Number(e.target.value))}
+              className="w-full border border-line rounded-xl pl-3 pr-10 py-3 text-sm bg-bg text-ink
+                focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand-soft
+                transition-all appearance-none">
+              {busLines.map(l => (
+                <option key={l.id} value={l.id}>{l.number} – {l.name}</option>
+              ))}
+            </select>
+            <ChevronDown className="w-4 h-4 text-faint absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" aria-hidden="true" />
+          </div>
         )}
-      </div>
+      </Card>
 
       {/* Abas Horários / Preços */}
       {line && (
         <div className="flex gap-2">
           <button
             onClick={() => setActiveTab('horarios')}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl
+            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl
               text-xs font-bold transition-colors
-              ${activeTab === 'horarios' ? 'bg-[#2ab76a] text-white' : 'bg-white text-gray-500 border border-gray-100'}`}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
-              strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
-              <circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" />
-            </svg>
+              ${activeTab === 'horarios' ? 'bg-brand text-white' : 'bg-white text-muted border border-line'}`}
+            style={{ minHeight: 44 }}
+          >
+            <Clock className="w-3.5 h-3.5" aria-hidden="true" />
             Horários
           </button>
           <button
             onClick={() => setActiveTab('precos')}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl
+            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl
               text-xs font-bold transition-colors
-              ${activeTab === 'precos' ? 'bg-[#2ab76a] text-white' : 'bg-white text-gray-500 border border-gray-100'}`}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
-              strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
-              <rect x="2" y="5" width="20" height="14" rx="2" />
-              <path d="M2 10h20" />
-            </svg>
+              ${activeTab === 'precos' ? 'bg-brand text-white' : 'bg-white text-muted border border-line'}`}
+            style={{ minHeight: 44 }}
+          >
+            <Ticket className="w-3.5 h-3.5" aria-hidden="true" />
             Preços
           </button>
         </div>
@@ -390,11 +391,11 @@ function AdminPanel({ user, onLogout }: { user: User; onLogout: () => void }) {
 
       {/* Conteúdo da aba ativa */}
       {line && (
-        <div className="card p-4 space-y-4">
+        <Card className="p-4 space-y-4">
 
           {activeTab === 'horarios' && (
             <>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">
+              <p className="text-xs font-bold text-muted uppercase tracking-wide">
                 Editar Horários
               </p>
               {periods.length > 0 && (
@@ -403,7 +404,7 @@ function AdminPanel({ user, onLogout }: { user: User; onLogout: () => void }) {
                     <button key={p} role="tab" aria-selected={activePeriod === p}
                       onClick={() => setActivePeriod(p)}
                       className={`flex-1 text-xs font-bold py-2.5 rounded-xl transition-colors
-                        ${activePeriod === p ? 'bg-[#2ab76a] text-white' : 'bg-gray-50 text-gray-500 border border-gray-100'}`}>
+                        ${activePeriod === p ? 'bg-brand text-white' : 'bg-bg text-muted border border-line'}`}>
                       {p}
                     </button>
                   ))}
@@ -422,7 +423,7 @@ function AdminPanel({ user, onLogout }: { user: User; onLogout: () => void }) {
                 destino={nameParts[1] ?? 'Destino'}
                 parada={parada}
               />
-              <p className="text-[10px] text-gray-400 text-center">
+              <p className="text-[10px] text-muted text-center">
                 Formato <span className="font-mono font-bold">HH:MM</span> (ex: 06:15)
               </p>
             </>
@@ -430,10 +431,10 @@ function AdminPanel({ user, onLogout }: { user: User; onLogout: () => void }) {
 
           {activeTab === 'precos' && (
             <>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">
+              <p className="text-xs font-bold text-muted uppercase tracking-wide">
                 Editar Preços das Passagens
               </p>
-              <p className="text-[11px] text-gray-400">
+              <p className="text-[11px] text-muted">
                 Clique no valor para editar. Use vírgula ou ponto para centavos (ex: 12,50).
               </p>
               <PriceEditor
@@ -443,20 +444,18 @@ function AdminPanel({ user, onLogout }: { user: User; onLogout: () => void }) {
             </>
           )}
 
-          <button onClick={handleSave} disabled={saving}
-            className="w-full py-3 rounded-xl text-sm font-bold text-white bg-[#2ab76a]
-              transition-all active:scale-95 disabled:opacity-60">
+          <Button onClick={handleSave} disabled={saving} fullWidth>
             {saving ? 'Salvando…' : activeTab === 'horarios' ? 'Salvar Horários' : 'Salvar Preços'}
-          </button>
-        </div>
+          </Button>
+        </Card>
       )}
 
       {/* Toast */}
       {toast && (
         <div role="alert"
           className={`fixed bottom-28 left-1/2 -translate-x-1/2 z-50
-            px-5 py-3 rounded-2xl text-sm font-bold text-white shadow-lg animate-enter
-            ${toast.ok ? 'bg-[#2ab76a]' : 'bg-red-500'}`}>
+            px-5 py-3 rounded-2xl text-sm font-bold text-white shadow-popover animate-pop
+            ${toast.ok ? 'bg-brand' : 'bg-danger'}`}>
           {toast.ok ? '✓ ' : '✗ '}{toast.msg}
         </div>
       )}
@@ -478,7 +477,7 @@ export default function Admin() {
 
   if (checking) return (
     <div className="min-h-[70vh] flex items-center justify-center">
-      <div className="w-8 h-8 rounded-full border-4 border-[#2ab76a]/30 border-t-[#2ab76a] animate-spin" />
+      <div className="w-8 h-8 rounded-full border-4 border-brand/30 border-t-brand animate-spin" />
     </div>
   )
 

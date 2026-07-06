@@ -1,12 +1,13 @@
-interface BusIconProps {
+interface BrandBusIconProps {
   className?: string
   stroke?: string
   strokeWidth?: number
 }
 
-// Ícone único do ônibus — usado em Header, About, Home e BottomNav.
-// Versão canônica: sem as "pernas" (M8 19v2 / M16 19v2), consistente com BottomNav e Home.
-export default function BusIcon({ className = 'w-5 h-5', stroke = 'currentColor', strokeWidth = 2 }: BusIconProps) {
+// Ícone de marca (logo) — usado só no Header e na tela de carregamento.
+// Mantido como SVG próprio (não lucide) de propósito: é a identidade visual
+// do app, não um ícone de interface genérico.
+export default function BrandBusIcon({ className = 'w-5 h-5', stroke = 'currentColor', strokeWidth = 2 }: BrandBusIconProps) {
   return (
     <svg
       viewBox="0 0 24 24"

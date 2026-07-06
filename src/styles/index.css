@@ -1,0 +1,133 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { @apply antialiased; }
+
+  body {
+    background-color: #F3F6F5;
+    color: #12181A;
+    font-family: 'Sora', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  * { box-sizing: border-box; }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: #F3F6F5; }
+  ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
+
+  :focus-visible {
+    outline: 2px solid #2B6CE0;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white border-0 rounded-2xl shadow-card;
+  }
+
+  .card-interactive {
+    @apply card transition-all duration-200 active:scale-[0.98] hover:shadow-popover;
+  }
+
+  .btn-primary {
+    @apply bg-brand hover:bg-brand-dark text-white font-semibold
+           px-5 py-3 rounded-xl transition-all duration-200 active:scale-95
+           inline-flex items-center justify-center gap-2 shadow-elevated
+           disabled:opacity-50 disabled:pointer-events-none;
+    min-height: 48px;
+  }
+
+  .btn-secondary {
+    @apply bg-brand-soft text-brand font-semibold
+           px-5 py-3 rounded-xl transition-all duration-200 active:scale-95
+           inline-flex items-center justify-center gap-2
+           disabled:opacity-50 disabled:pointer-events-none;
+    min-height: 48px;
+  }
+
+  .btn-ghost {
+    @apply bg-transparent text-muted hover:bg-black/[0.04] font-semibold
+           px-4 py-2.5 rounded-xl transition-all duration-200 active:scale-95
+           inline-flex items-center justify-center gap-2
+           disabled:opacity-50 disabled:pointer-events-none;
+    min-height: 44px;
+  }
+
+  .tag {
+    @apply text-[10px] font-semibold px-2.5 py-1 rounded-full;
+  }
+
+  .chip {
+    @apply shrink-0 text-xs font-semibold px-4 rounded-xl transition-colors duration-200
+           bg-white text-muted border border-line hover:border-brand/30;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .chip-active {
+    @apply bg-brand text-white border-brand;
+  }
+
+  .nav-item-active {
+    @apply rounded-xl;
+    background-color: #159A56;
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden bg-line rounded-xl;
+  }
+  .skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+    animation: shimmer 1.6s infinite;
+  }
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-enter {
+  animation: fadeSlideUp 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes fadeScale {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.animate-pop {
+  animation: fadeScale 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.dot-pulse {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-enter, .animate-pop, .dot-pulse, .skeleton::after {
+    animation: none !important;
+  }
+  * {
+    transition-duration: 0.001ms !important;
+  }
+}

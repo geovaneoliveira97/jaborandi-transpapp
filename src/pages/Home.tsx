@@ -1,6 +1,7 @@
 import type { BusLine, AppView } from '../types/types'
 import LineCard from '../components/LineCard'
-import BusIcon  from '../components/BusIcon'
+import SectionLabel from '../components/ui/SectionLabel'
+import { Bus, Clock, MapPin } from '../components/icons'
 
 interface HomeProps {
   busLines:     BusLine[]
@@ -15,15 +16,11 @@ export default function Home({ busLines, onNavigate, onSelectLine }: HomeProps) 
       {/* Hero banner */}
       <section
         className="rounded-3xl p-6 relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, #2ab76a 0%, #1a8f4f 100%)' }}
+        style={{ background: 'linear-gradient(135deg, #159A56 0%, #0F7A44 100%)' }}
       >
         {/* Localização */}
         <div className="inline-flex items-center gap-1.5 bg-white/20 rounded-full px-3 py-1 mb-4">
-          <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"
-            strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3">
-            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
-            <circle cx="12" cy="9" r="2.5"/>
-          </svg>
+          <MapPin className="w-3 h-3 text-white" aria-hidden="true" />
           <span className="text-[11px] font-semibold text-white">Jaborandi–SP</span>
         </div>
 
@@ -39,10 +36,11 @@ export default function Home({ busLines, onNavigate, onSelectLine }: HomeProps) 
           <button
             onClick={() => onNavigate('lines')}
             className="flex-1 flex items-center justify-center gap-2
-              bg-white text-[#1a8f4f] font-bold py-3 rounded-2xl
+              bg-white text-brand-dark font-bold py-3 rounded-2xl
               shadow-md transition-all active:scale-95 text-sm"
+            style={{ minHeight: 48 }}
           >
-            <BusIcon className="w-4 h-4" stroke="#1a8f4f" />
+            <Bus className="w-4 h-4" aria-hidden="true" />
             Ver Linhas
           </button>
           <button
@@ -52,12 +50,9 @@ export default function Home({ busLines, onNavigate, onSelectLine }: HomeProps) 
               text-white font-bold py-3 rounded-2xl
               border border-white/25
               transition-all active:scale-95 text-sm"
+            style={{ minHeight: 48 }}
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-              strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4" aria-hidden="true">
-              <circle cx="12" cy="12" r="9" />
-              <path d="M12 7v5l3 3" />
-            </svg>
+            <Clock className="w-4 h-4" aria-hidden="true" />
             Horários
           </button>
         </div>
@@ -71,9 +66,9 @@ export default function Home({ busLines, onNavigate, onSelectLine }: HomeProps) 
       {/* Lista de linhas */}
       {busLines.length > 0 && (
         <section aria-label="Linhas disponíveis">
-          <h2 className="text-[11px] font-semibold uppercase tracking-widest mb-3 text-gray-400 px-1">
+          <SectionLabel className="mb-3 px-1">
             Linhas disponíveis
-          </h2>
+          </SectionLabel>
           <div className="space-y-2">
             {busLines.map(line => (
               <LineCard key={line.id} line={line} onSelect={onSelectLine} />

@@ -6,15 +6,15 @@ interface BadgeProps {
 
 interface BadgeConfig {
   label: string
-  bg: string
-  text: string
-  dot: string
+  bg:    string
+  text:  string
+  dot:   string
 }
 
 const CONFIG: Record<LineStatus, BadgeConfig> = {
-  normal:    { label: 'Operando',  bg: 'rgba(42,183,106,0.12)',  text: '#1e9e57', dot: '#2ab76a' },
-  delay:     { label: 'Atraso',    bg: 'rgba(249,153,0,0.12)',   text: '#b36e00', dot: '#f99900' },
-  suspended: { label: 'Suspensa',  bg: 'rgba(239,68,68,0.12)',   text: '#b91c1c', dot: '#ef4444' },
+  normal:    { label: 'Operando', bg: 'rgba(21,154,86,0.12)',  text: '#0F7A44', dot: '#159A56' },
+  delay:     { label: 'Atraso',   bg: 'rgba(249,153,0,0.14)',  text: '#8A5200', dot: '#B36E00' },
+  suspended: { label: 'Suspensa', bg: 'rgba(220,38,38,0.12)',  text: '#B91C1C', dot: '#DC2626' },
 }
 
 export default function Badge({ status }: BadgeProps) {
@@ -25,7 +25,7 @@ export default function Badge({ status }: BadgeProps) {
       style={{ backgroundColor: bg, color: text }}
     >
       <span
-        className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+        className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${status === 'normal' ? 'dot-pulse' : ''}`}
         style={{ backgroundColor: dot }}
         aria-hidden="true"
       />

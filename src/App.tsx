@@ -1,13 +1,12 @@
 // src/App.tsx
-import { useState, useEffect, useCallback, lazy, Suspense } from 'react'
+import { useState, useEffect, useCallback, lazy } from 'react'
 import { supabase } from './lib/supabase'
 import type { BusLine, AppView } from './types/types'
 import { isBusLine } from './types/types'
 
-import Header       from './components/Header'
-import BottomNav    from './components/BottomNav'
+import AppShell      from './layouts/AppShell'
 import { LoadingScreen, ErrorScreen } from './components/LoadingScreen'
-import UpdateBanner from './components/UpdateBanner'
+import UpdateBanner  from './components/UpdateBanner'
 
 const Home     = lazy(() => import('./pages/Home'))
 const Lines    = lazy(() => import('./pages/Lines'))
@@ -105,38 +104,35 @@ export default function App() {
   if (erro)    return <ErrorScreen onRetry={retry} />
 
   return (
-    <div className="min-h-screen bg-[#f0f4f2]">
-      <Header title={PAGE_TITLES[view]} onAdminAccess={() => navigateTo('admin')} />
-
-      {updateAvailable && (
+    <AppShell
+      title={PAGE_TITLES[view]}
+      onAdminAccess={() => navigateTo('admin')}
+      view={view}
+      onNavigate={navigateTo}
+      alertCount={alertCount}
+      banner={updateAvailable && (
         <UpdateBanner onUpdate={applyUpdate} onDismiss={() => setUpdateAvailable(false)} />
       )}
-
-      <Suspense fallback={null}>
-        <main className="max-w-lg mx-auto px-4 py-5 pb-28">
-          {view === 'home' && (
-            <Home busLines={busLines} onNavigate={navigateTo} onSelectLine={handleSelectLine} />
-          )}
-          {view === 'lines' && (
-            <Lines busLines={busLines} onSelectLine={handleSelectLine} />
-          )}
-          {view === 'schedule' && (
-            busLines.length === 0
-              ? (
-                <p className="text-center py-16 text-sm text-gray-400">
-                  Nenhuma linha disponível.{' '}
-                  <button onClick={() => navigateTo('home')} className="text-[#2ab76a] font-semibold underline">
-                    Voltar ao início
-                  </button>
-                </p>
-              )
-              : <Schedule busLines={busLines} selectedLine={selectedLine} onSelectLine={setSelectedLine} />
-          )}
-          {view === 'admin' && <Admin />}
-        </main>
-      </Suspense>
-
-      <BottomNav view={view} onNavigate={navigateTo} alertCount={alertCount} />
-    </div>
+    >
+      {view === 'home' && (
+        <Home busLines={busLines} onNavigate={navigateTo} onSelectLine={handleSelectLine} />
+      )}
+      {view === 'lines' && (
+        <Lines busLines={busLines} onSelectLine={handleSelectLine} />
+      )}
+      {view === 'schedule' && (
+        busLines.length === 0
+          ? (
+            <p className="text-center py-16 text-sm text-muted">
+              Nenhuma linha disponível.{' '}
+              <button onClick={() => navigateTo('home')} className="text-brand font-semibold underline">
+                Voltar ao início
+              </button>
+            </p>
+          )
+          : <Schedule busLines={busLines} selectedLine={selectedLine} onSelectLine={setSelectedLine} />
+      )}
+      {view === 'admin' && <Admin />}
+    </AppShell>
   )
 }

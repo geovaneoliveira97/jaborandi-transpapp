@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import BusIcon from './BusIcon'
+import BrandBusIcon from './icons/BrandBusIcon'
 
 interface HeaderProps {
   title: string
@@ -40,18 +40,17 @@ export default function Header({ title, onAdminAccess }: HeaderProps) {
       <button
         onClick={handleLogoTap}
         aria-label="JaborandiTransp"
-        className="w-9 h-9 rounded-full flex items-center justify-center shrink-0
-          transition-transform active:scale-90"
-        style={{ backgroundColor: '#2ab76a' }}
+        className="w-10 h-10 rounded-full flex items-center justify-center shrink-0
+          bg-brand transition-transform active:scale-90"
       >
-        <BusIcon stroke="white" className="w-5 h-5" />
+        <BrandBusIcon stroke="white" className="w-5 h-5" />
       </button>
 
       <div className="flex-1 min-w-0">
-        <p className="text-[10px] font-semibold text-[#2ab76a] uppercase tracking-widest leading-none">
+        <p className="text-[10px] font-semibold text-brand uppercase tracking-widest leading-none">
           JaborandiTransp
         </p>
-        <p className="text-[15px] font-semibold leading-snug text-gray-900 truncate">
+        <p className="text-[15px] font-semibold leading-snug text-ink truncate">
           {title}
         </p>
       </div>

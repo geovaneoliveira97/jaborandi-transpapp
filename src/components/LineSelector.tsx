@@ -1,5 +1,7 @@
 import type { BusLine } from '../types/types'
 import { DEFAULT_LINE_COLOR } from '../types/types'
+import { ChevronDown } from './icons'
+import Card from './ui/Card'
 import Badge from './Badge'
 
 interface LineSelectorProps {
@@ -15,24 +17,31 @@ export default function LineSelector({
   const lineColor = line.color ?? DEFAULT_LINE_COLOR
 
   return (
-    <div className="bg-white rounded-2xl p-4 space-y-3">
-      <label htmlFor="line-select" className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+    <Card className="p-4 space-y-3">
+      <label htmlFor="line-select" className="text-[10px] font-semibold uppercase tracking-widest text-muted">
         Selecionar linha
       </label>
-      <select
-        id="line-select"
-        value={line.id}
-        onChange={e => {
-          const found = busLines.find(l => String(l.id) === e.target.value)
-          if (found) onSelectLine(found)
-        }}
-        className="w-full border border-gray-100 rounded-xl px-4 py-3 text-sm bg-gray-50 text-gray-900
-          focus:outline-none focus:border-[#2ab76a] transition-colors appearance-none"
-      >
-        {busLines.map(l => (
-          <option key={l.id} value={l.id}>{l.name}</option>
-        ))}
-      </select>
+      <div className="relative">
+        <select
+          id="line-select"
+          value={line.id}
+          onChange={e => {
+            const found = busLines.find(l => String(l.id) === e.target.value)
+            if (found) onSelectLine(found)
+          }}
+          className="w-full border border-line rounded-xl pl-4 pr-10 py-3.5 text-sm bg-bg text-ink
+            focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand-soft
+            transition-all appearance-none"
+        >
+          {busLines.map(l => (
+            <option key={l.id} value={l.id}>{l.name}</option>
+          ))}
+        </select>
+        <ChevronDown
+          className="w-4 h-4 text-faint absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"
+          aria-hidden="true"
+        />
+      </div>
 
       <div className="flex items-center gap-3 pt-0.5">
         {/* Número da linha com fundo colorido sólido */}
@@ -44,15 +53,15 @@ export default function LineSelector({
           {line.number}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-gray-900 truncate">{line.name}</p>
+          <p className="text-sm font-semibold text-ink truncate">{line.name}</p>
           {intermediarias.length > 0 && (
-            <p className="text-xs text-gray-400 mt-0.5 truncate">
+            <p className="text-xs text-muted mt-0.5 truncate">
               Passa por {intermediarias.join(', ')}
             </p>
           )}
         </div>
         <Badge status={line.status} />
       </div>
-    </div>
+    </Card>
   )
 }

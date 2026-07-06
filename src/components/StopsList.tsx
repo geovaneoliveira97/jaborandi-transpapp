@@ -1,3 +1,7 @@
+import { Route } from './icons'
+import Card from './ui/Card'
+import SectionLabel from './ui/SectionLabel'
+
 interface StopsListProps {
   stops:     string[]
   lineColor: string
@@ -6,21 +10,17 @@ interface StopsListProps {
 export default function StopsList({ stops, lineColor }: StopsListProps) {
   if (stops.length === 0) {
     return (
-      <div className="bg-white rounded-2xl p-6 text-center">
-        <p className="text-sm text-gray-400">Informações de trajeto não disponíveis.</p>
-      </div>
+      <Card className="p-6 text-center">
+        <p className="text-sm text-muted">Informações de trajeto não disponíveis.</p>
+      </Card>
     )
   }
 
   return (
-    <div className="bg-white rounded-2xl p-4">
-      <p className="text-[10px] font-semibold uppercase tracking-widest mb-4 text-gray-400 flex items-center gap-1.5">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth={2}
-          strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5" aria-hidden="true">
-          <path d="M3 12h18M3 6h18M3 18h18" />
-        </svg>
+    <Card className="p-4">
+      <SectionLabel icon={<Route className="w-3.5 h-3.5 text-faint" aria-hidden="true" />} className="mb-4">
         Trajeto · {stops.length} paradas
-      </p>
+      </SectionLabel>
 
       <ul className="space-y-0 list-none">
         {stops.map((stop, i) => {
@@ -49,7 +49,7 @@ export default function StopsList({ stops, lineColor }: StopsListProps) {
 
               {/* Stop name */}
               <p className={`text-sm pb-3 leading-tight
-                ${isEdge ? 'font-semibold text-gray-900' : 'text-gray-500'}`}
+                ${isEdge ? 'font-semibold text-ink' : 'text-muted'}`}
               >
                 {stop}
                 {isFirst && (
@@ -73,6 +73,6 @@ export default function StopsList({ stops, lineColor }: StopsListProps) {
           )
         })}
       </ul>
-    </div>
+    </Card>
   )
 }
