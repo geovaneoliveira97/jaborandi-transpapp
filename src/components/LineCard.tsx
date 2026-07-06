@@ -6,6 +6,7 @@ import Badge from './Badge'
 import FavoriteButton from './ui/FavoriteButton'
 import { useNextDeparture } from '../hooks/useNextDeparture'
 import { useFavorites } from '../hooks/useFavorites'
+import { ensureContrastOnWhite } from '../utils/color'
 
 interface LineCardProps {
   line:     BusLine
@@ -14,7 +15,9 @@ interface LineCardProps {
 
 export default function LineCard({ line, onSelect }: LineCardProps) {
   const isSuspended = line.status === 'suspended'
-  const lineColor   = line.color ?? DEFAULT_LINE_COLOR
+  // `line.color` vem do banco e pode não ter contraste suficiente atrás do
+  // texto branco do número — corrigido automaticamente aqui (ver utils/color).
+  const lineColor   = ensureContrastOnWhite(line.color ?? DEFAULT_LINE_COLOR)
 
   const { detail, nextIndex, nextLabel } = useNextDeparture(line.schedule_detail)
   const { isFavorite, toggleFavorite }   = useFavorites()

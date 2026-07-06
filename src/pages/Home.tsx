@@ -16,7 +16,7 @@ export default function Home({ busLines, onNavigate, onSelectLine }: HomeProps) 
       {/* Hero banner */}
       <section
         className="rounded-3xl p-6 relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, #159A56 0%, #0F7A44 100%)' }}
+        style={{ background: 'linear-gradient(135deg, #0F7A44 0%, #0B5E36 100%)' }}
       >
         {/* Localização */}
         <div className="inline-flex items-center gap-1.5 bg-white/20 rounded-full px-3 py-1 mb-4">

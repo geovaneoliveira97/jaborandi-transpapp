@@ -5,10 +5,10 @@
 // como a cor por linha de ônibus vinda do banco).
 
 export const colors = {
-  brand:      '#159A56',
+  brand:      '#0F7A44',
   brandLight: '#2ab76a',
-  brandDark:  '#0F7A44',
-  brandSoft:  'rgba(21,154,86,0.12)',
+  brandDark:  '#0B5E36',
+  brandSoft:  'rgba(15,122,68,0.12)',
 
   accent:     '#2B6CE0',
   accentSoft: 'rgba(43,108,224,0.12)',

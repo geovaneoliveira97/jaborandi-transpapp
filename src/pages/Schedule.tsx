@@ -11,6 +11,7 @@ import { Copy, Check, Share2, Clock } from '../components/icons'
 import { useNextDeparture } from '../hooks/useNextDeparture'
 import { getPeriodoPorDia } from '../utils/time'
 import { buildWhatsAppText } from '../utils/whatsapp'
+import { ensureContrastOnWhite } from '../utils/color'
 
 interface ScheduleProps {
   busLines:     BusLine[]
@@ -106,7 +107,10 @@ function ScheduleInner({
   const isToday = period === getPeriodoPorDia(periods)
   const proximo = nextIndex !== -1 ? detail[nextIndex] : null
 
-  const lineColor      = line.color ?? DEFAULT_LINE_COLOR
+  // `line.color` vem do banco e pode não ter contraste suficiente atrás de
+  // texto/ícones brancos — corrigido aqui, uma única vez, para todos os
+  // componentes filhos que recebem `lineColor` (ver utils/color).
+  const lineColor      = ensureContrastOnWhite(line.color ?? DEFAULT_LINE_COLOR)
   const stops          = line.stops ?? []
   const intermediarias = stops.slice(1, -1)
   const nameParts      = (line.name ?? '').split(' → ')

@@ -3,6 +3,7 @@ import { DEFAULT_LINE_COLOR } from '../types/types'
 import { ChevronDown } from './icons'
 import Card from './ui/Card'
 import Badge from './Badge'
+import { ensureContrastOnWhite } from '../utils/color'
 
 interface LineSelectorProps {
   busLines:        BusLine[]
@@ -14,7 +15,7 @@ interface LineSelectorProps {
 export default function LineSelector({
   busLines, line, onSelectLine, intermediarias = [],
 }: LineSelectorProps) {
-  const lineColor = line.color ?? DEFAULT_LINE_COLOR
+  const lineColor = ensureContrastOnWhite(line.color ?? DEFAULT_LINE_COLOR)
 
   return (
     <Card className="p-4 space-y-3">

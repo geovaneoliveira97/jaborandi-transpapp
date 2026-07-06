@@ -7,12 +7,15 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Marca / ação principal — verde (mantido: já é o ícone do PWA publicado)
+        // Marca / ação principal — verde (mantido: já é o ícone do PWA publicado).
+        // DEFAULT escurecido para #0F7A44: o tom antigo (#159A56) reprova no
+        // teste de contraste AA (4.5:1) do PageSpeed/Lighthouse quando usado
+        // como texto sobre branco ou como fundo atrás de texto branco.
         brand: {
-          DEFAULT: '#159A56',
+          DEFAULT: '#0F7A44',
           light:   '#2ab76a',
-          dark:    '#0F7A44',
-          soft:    'rgba(21,154,86,0.12)',
+          dark:    '#0B5E36',
+          soft:    'rgba(15,122,68,0.12)',
         },
         // Acento informativo — azul (usado em mensagens de info/atualização, nunca em ações de marca)
         accent: {
