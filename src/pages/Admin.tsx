@@ -1,6 +1,6 @@
 // src/pages/Admin.tsx
 import { useState, useEffect, useCallback } from 'react'
-import { supabase } from '../lib/supabase'
+import { supabase } from '../lib/supabaseAdmin'
 import type { BusLine, ScheduleRow } from '../types/types'
 import { isBusLine } from '../types/types'
 import type { User } from '@supabase/supabase-js'
