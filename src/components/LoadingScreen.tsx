@@ -1,5 +1,4 @@
-import BrandBusIcon from './icons/BrandBusIcon'
-import { WifiOff } from './icons'
+import { Bus, WifiOff } from './icons'
 import Button from './ui/Button'
 
 export function LoadingScreen() {
@@ -11,7 +10,7 @@ export function LoadingScreen() {
       className="min-h-screen flex flex-col items-center justify-center gap-4 bg-bg"
     >
       <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-brand animate-pop">
-        <BrandBusIcon stroke="white" className="w-8 h-8" />
+        <Bus className="w-8 h-8 text-white" strokeWidth={2} aria-hidden="true" />
       </div>
       <div className="flex flex-col items-center gap-1">
         <div className="w-6 h-6 border-[3px] border-brand border-t-transparent rounded-full animate-spin" aria-hidden="true" />

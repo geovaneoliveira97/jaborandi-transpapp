@@ -4,8 +4,7 @@ import { supabase } from '../lib/supabaseAdmin'
 import type { BusLine, ScheduleRow } from '../types/types'
 import { isBusLine } from '../types/types'
 import type { User } from '@supabase/supabase-js'
-import BrandBusIcon from '../components/icons/BrandBusIcon'
-import { ChevronDown, Clock, Ticket, LogOut, Plus, Trash2 } from '../components/icons'
+import { Bus, ChevronDown, Clock, Ticket, LogOut, Plus, Trash2 } from '../components/icons'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 
@@ -36,7 +35,7 @@ function LoginScreen({ onLogin }: { onLogin: (user: User) => void }) {
       <Card className="p-8 w-full max-w-sm space-y-6">
         <div className="text-center space-y-2">
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto bg-brand">
-            <BrandBusIcon stroke="white" className="w-8 h-8" />
+            <Bus className="w-8 h-8 text-white" strokeWidth={2} aria-hidden="true" />
           </div>
           <h2 className="text-xl font-bold text-ink">Área Admin</h2>
           <p className="text-xs text-muted">Acesso restrito ao gestor</p>
@@ -324,7 +323,7 @@ function AdminPanel({ user, onLogout }: { user: User; onLogout: () => void }) {
       <Card className="p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-brand flex items-center justify-center">
-            <BrandBusIcon stroke="white" className="w-4 h-4" />
+            <Bus className="w-4 h-4 text-white" strokeWidth={2} aria-hidden="true" />
           </div>
           <div>
             <p className="text-xs font-bold text-ink">Painel Admin</p>

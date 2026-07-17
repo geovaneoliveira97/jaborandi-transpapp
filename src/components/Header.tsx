@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import BrandBusIcon from './icons/BrandBusIcon'
+import { Bus } from './icons'
 
 interface HeaderProps {
   title: string
@@ -43,7 +43,7 @@ export default function Header({ title, onAdminAccess }: HeaderProps) {
         className="w-10 h-10 rounded-full flex items-center justify-center shrink-0
           bg-brand transition-transform active:scale-90"
       >
-        <BrandBusIcon stroke="white" className="w-5 h-5" />
+        <Bus className="w-5 h-5 text-white" strokeWidth={2} aria-hidden="true" />
       </button>
 
       <div className="flex-1 min-w-0">

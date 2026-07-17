@@ -2,8 +2,7 @@
 //
 // Ponto único de importação de ícones. Todo o app usa a mesma biblioteca
 // (lucide-react) e o mesmo estilo de traço — evita misturar SVGs artesanais
-// com estilos diferentes entre telas. O ícone de ônibus da marca (logo) é
-// exceção proposital: ver BrandBusIcon.tsx.
+// com estilos diferentes entre telas.
 
 export {
   Home,
