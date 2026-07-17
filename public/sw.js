@@ -96,12 +96,14 @@ self.addEventListener('fetch', event => {
     event.respondWith(
       caches.open(FONT_CACHE).then(cache =>
         cache.match(event.request).then(cached => {
-          const networkFetch = fetch(event.request).then(response => {
-            if (response.ok && response.type !== 'opaque') {
-              cache.put(event.request, response.clone())
-            }
-            return response
-          })
+          const networkFetch = fetch(event.request)
+            .then(response => {
+              if (response.ok && response.type !== 'opaque') {
+                cache.put(event.request, response.clone())
+              }
+              return response
+            })
+            .catch(() => cached)
           return cached || networkFetch
         })
       )
