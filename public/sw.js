@@ -1,4 +1,4 @@
-// public/sw.js — Service Worker do JaborandiTransp v7
+// public/sw.js — Service Worker do JaborandiTransp v8
 //
 // Mudança principal: atualização AUTOMÁTICA para todos os usuários.
 // Quando um novo deploy chega, o SW ativa imediatamente e recarrega
@@ -9,9 +9,9 @@
 //   2. Fontes (Google Fonts) → Stale-While-Revalidate
 //   3. Assets estáticos → Network-first (garante bundle novo sempre)
 
-const CACHE_NAME = 'jaborandi-transp-v7'
-const DATA_CACHE = 'jaborandi-data-v7'
-const FONT_CACHE = 'jaborandi-fonts-v7'
+const CACHE_NAME = 'jaborandi-transp-v8'
+const DATA_CACHE = 'jaborandi-data-v8'
+const FONT_CACHE = 'jaborandi-fonts-v8'
 
 const STATIC_ASSETS = [
   '/',
@@ -67,7 +67,10 @@ self.addEventListener('fetch', event => {
   const url = event.request.url
 
   // 1. Dados do Supabase — Network-first com fallback para cache
-  if (url.includes('supabase.co') && event.request.method === 'GET') {
+  // Restrito à leitura pública de horários (/rest/v1/bus_lines) — não cacheia
+  // respostas de /auth/v1/* nem de outros endpoints que possam carregar dados
+  // de sessão/usuário autenticado.
+  if (url.includes('supabase.co') && url.includes('/rest/v1/bus_lines') && event.request.method === 'GET') {
     event.respondWith(
       fetch(event.request.clone())
         .then(response => {

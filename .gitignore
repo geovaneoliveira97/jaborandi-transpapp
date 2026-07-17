@@ -12,3 +12,7 @@ dist/
 # Cache e logs
 .DS_Store
 *.log
+
+# Relatório de auditoria interno — contém e-mail pessoal e detalhes de
+# vulnerabilidade (já corrigida); não deve ir para o repositório público.
+AUDITORIA_SEGURANCA.md

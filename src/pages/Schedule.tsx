@@ -26,7 +26,7 @@ function ShareWhatsAppButton({ line }: { line: BusLine }) {
 
   const handleShare = useCallback(() => {
     const url = `https://wa.me/?text=${encodeURIComponent(whatsappText)}`
-    window.open(url, '_blank')
+    window.open(url, '_blank', 'noopener,noreferrer')
   }, [whatsappText])
 
   const handleCopy = useCallback(async () => {
