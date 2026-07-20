@@ -11,6 +11,11 @@ export function buildWhatsAppText(line: BusLine): string {
   const scheduleDetail = line.schedule_detail ?? {}
   const periods = sortPeriods(Object.keys(scheduleDetail))
 
+  const nameParts = (line.name ?? '').split(' → ')
+  const origem = nameParts[0] ?? 'Origem'
+  const destino = nameParts[1] ?? 'Destino'
+  const paradaIntermed = (line.stops ?? []).slice(1, -1)[0] ?? null
+
   const lines: string[] = []
   lines.push(`🚌 *Linha ${line.number} — ${line.name}*`)
   lines.push(`Rápido do Oeste`)
@@ -21,8 +26,8 @@ export function buildWhatsAppText(line: BusLine): string {
     if (rows.length === 0) continue
     lines.push(`📅 *${period}*`)
     for (const row of rows) {
-      const meio = row.colina ? ` → ${row.colina}` : ''
-      lines.push(`  🕐 ${row.de}${meio} → ${row.ate}`)
+      const meio = row.colina ? ` → ${paradaIntermed ?? 'Colina'} ${row.colina}` : ''
+      lines.push(`  🕐 ${origem} ${row.de}${meio} → ${destino} ${row.ate}`)
     }
     lines.push('')
   }
