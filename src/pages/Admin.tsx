@@ -1,10 +1,11 @@
 // src/pages/Admin.tsx
 import { useState, useEffect, useCallback } from 'react'
+import QRCode from 'qrcode'
 import { supabase } from '../lib/supabaseAdmin'
 import type { BusLine, ScheduleRow } from '../types/types'
 import { isBusLine } from '../types/types'
 import type { User } from '@supabase/supabase-js'
-import { Bus, ChevronDown, Clock, Ticket, LogOut, Plus, Trash2 } from '../components/icons'
+import { Bus, ChevronDown, Clock, Ticket, QrCode, LogOut, Plus, Trash2 } from '../components/icons'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 
@@ -221,9 +222,110 @@ function PriceEditor({ prices, onChange }: PriceEditorProps) {
   )
 }
 
+// ─── QR CODE E LEITURAS ───────────────────────────────────────────────────────
+interface ScanStat {
+  total:  number
+  byHour: { hour: number; count: number }[]
+}
+
+function summarizeScans(rows: { scanned_at: string }[]): ScanStat {
+  const counts = new Map<number, number>()
+  for (const row of rows) {
+    const hour = new Date(row.scanned_at).getHours()
+    counts.set(hour, (counts.get(hour) ?? 0) + 1)
+  }
+  const byHour = Array.from(counts.entries())
+    .map(([hour, count]) => ({ hour, count }))
+    .sort((a, b) => b.count - a.count)
+  return { total: rows.length, byHour }
+}
+
+function QrCodeTab({ line }: { line: BusLine }) {
+  const [qrDataUrl, setQrDataUrl]     = useState<string | null>(null)
+  const [scans, setScans]             = useState<ScanStat | null>(null)
+  const [loadingScans, setLoadingScans] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    setQrDataUrl(null)
+    const url = `${window.location.origin}/?linha=${encodeURIComponent(line.number)}`
+    QRCode.toDataURL(url, { width: 256, margin: 1 })
+      .then(dataUrl => { if (!cancelled) setQrDataUrl(dataUrl) })
+      .catch(() => { /* mantém null; UI mostra estado de carregando indefinidamente */ })
+    return () => { cancelled = true }
+  }, [line.number])
+
+  useEffect(() => {
+    let cancelled = false
+    setLoadingScans(true)
+    supabase
+      .from('qr_scans')
+      .select('scanned_at')
+      .eq('line_id', line.id)
+      .then(({ data, error }) => {
+        if (cancelled) return
+        setScans(!error && data ? summarizeScans(data) : null)
+        setLoadingScans(false)
+      })
+    return () => { cancelled = true }
+  }, [line.id])
+
+  const maxCount = scans?.byHour[0]?.count ?? 0
+
+  return (
+    <>
+      <p className="text-xs font-bold text-muted uppercase tracking-wide">QR Code do Ponto</p>
+      <p className="text-[11px] text-muted">
+        Imprima e cole no ponto físico. Ao ser lido, abre direto nos horários da linha {line.number}.
+      </p>
+
+      <div className="flex flex-col items-center gap-3 py-2">
+        {qrDataUrl ? (
+          <>
+            <img src={qrDataUrl} alt={`QR code de acesso aos horários da linha ${line.number}`}
+              width={192} height={192} className="w-48 h-48 rounded-xl border border-line" />
+            <a href={qrDataUrl} download={`qrcode-linha-${line.number}.png`}
+              className="text-xs font-bold text-brand underline underline-offset-2">
+              Baixar QR code
+            </a>
+          </>
+        ) : (
+          <p className="text-xs text-muted py-8">Gerando QR code…</p>
+        )}
+      </div>
+
+      <div className="border-t border-line pt-4 space-y-2">
+        <p className="text-xs font-bold text-muted uppercase tracking-wide">Leituras registradas</p>
+        {loadingScans ? (
+          <p className="text-xs text-muted">Carregando leituras…</p>
+        ) : !scans || scans.total === 0 ? (
+          <p className="text-xs text-muted">Nenhuma leitura registrada ainda.</p>
+        ) : (
+          <>
+            <p className="text-sm text-ink">
+              <span className="font-bold">{scans.total}</span> leitura{scans.total === 1 ? '' : 's'} no total
+            </p>
+            <div className="space-y-1.5">
+              {scans.byHour.map(({ hour, count }) => (
+                <div key={hour} className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono text-muted w-8 shrink-0">{String(hour).padStart(2, '0')}h</span>
+                  <div className="flex-1 h-2.5 rounded-full bg-bg overflow-hidden">
+                    <div className="h-full bg-brand rounded-full" style={{ width: `${(count / maxCount) * 100}%` }} />
+                  </div>
+                  <span className="text-[10px] font-mono text-muted w-6 text-right shrink-0">{count}</span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  )
+}
+
 // ─── PAINEL ADMIN ─────────────────────────────────────────────────────────────
 const PERIOD_ORDER = ['Seg–Sex', 'Sábado', 'Domingo']
-type AdminTab = 'horarios' | 'precos'
+type AdminTab = 'horarios' | 'precos' | 'qrcode'
 
 function AdminPanel({ user, onLogout }: { user: User; onLogout: () => void }) {
   const [busLines, setBusLines]         = useState<BusLine[]>([])
@@ -385,6 +487,16 @@ function AdminPanel({ user, onLogout }: { user: User; onLogout: () => void }) {
             <Ticket className="w-3.5 h-3.5" aria-hidden="true" />
             Preços
           </button>
+          <button
+            onClick={() => setActiveTab('qrcode')}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl
+              text-xs font-bold transition-colors
+              ${activeTab === 'qrcode' ? 'bg-brand text-white' : 'bg-white text-muted border border-line'}`}
+            style={{ minHeight: 44 }}
+          >
+            <QrCode className="w-3.5 h-3.5" aria-hidden="true" />
+            QR Code
+          </button>
         </div>
       )}
 
@@ -443,9 +555,13 @@ function AdminPanel({ user, onLogout }: { user: User; onLogout: () => void }) {
             </>
           )}
 
-          <Button onClick={handleSave} disabled={saving} fullWidth>
-            {saving ? 'Salvando…' : activeTab === 'horarios' ? 'Salvar Horários' : 'Salvar Preços'}
-          </Button>
+          {activeTab === 'qrcode' && <QrCodeTab line={line} />}
+
+          {activeTab !== 'qrcode' && (
+            <Button onClick={handleSave} disabled={saving} fullWidth>
+              {saving ? 'Salvando…' : activeTab === 'horarios' ? 'Salvar Horários' : 'Salvar Preços'}
+            </Button>
+          )}
         </Card>
       )}
 

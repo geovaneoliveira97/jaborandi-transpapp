@@ -1,6 +1,7 @@
 // src/App.tsx
-import { useState, useEffect, useCallback, lazy } from 'react'
+import { useState, useEffect, useCallback, useRef, lazy } from 'react'
 import { supabase } from './lib/supabase'
+import { logQrScan } from './lib/scan'
 import type { BusLine, AppView } from './types/types'
 import { isBusLine } from './types/types'
 
@@ -34,6 +35,7 @@ export default function App() {
   const [erro, setErro]                       = useState(false)
   const [updateAvailable, setUpdateAvailable] = useState(false)
   const [retryKey, setRetryKey]               = useState(0)
+  const qrParamApplied                        = useRef(false)
 
   const retry = useCallback(() => setRetryKey(k => k + 1), [])
 
@@ -79,6 +81,17 @@ export default function App() {
             if (prev) return lines.find(l => l.id === prev.id) ?? lines[0] ?? null
             return lines[0] ?? null
           })
+
+          if (!qrParamApplied.current) {
+            qrParamApplied.current = true
+            const linhaParam = new URLSearchParams(window.location.search).get('linha')
+            const line = linhaParam ? lines.find(l => l.number === linhaParam) : undefined
+            if (line) {
+              setSelectedLine(line)
+              setView('schedule')
+              logQrScan(line.id)
+            }
+          }
         }
         setLoading(false)
       })

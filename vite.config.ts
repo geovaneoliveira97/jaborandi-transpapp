@@ -13,9 +13,12 @@
 //   VITE_SUPABASE_ANON_KEY  → Chave anônima pública do Supabase
 //   VITE_GA_ID              → ID do Google Analytics (ex: G-XXXXXXXXXX)
 
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  test: {
+    environment: 'jsdom',
+  },
 })

@@ -31,4 +31,5 @@ export {
   Trash2,
   Plus,
   CalendarDays,
+  QrCode,
 } from 'lucide-react'
